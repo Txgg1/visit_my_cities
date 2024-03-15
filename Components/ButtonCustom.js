@@ -11,7 +11,7 @@ class ButtonCustom extends React.Component{
         const {title, onPress, style} = this.props
         return(
             <View>
-                <Button
+                <Button style={styles.button}
                     onPress={onPress}
                     title={title}
                     style={style}

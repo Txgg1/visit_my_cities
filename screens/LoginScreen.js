@@ -87,6 +87,9 @@ class LoginScreen extends React.Component {
           <TouchableOpacity onPress={() => navigate('Registerscreen')}>
             <Text style={styles.link}>S'inscrire</Text>
           </TouchableOpacity>
+        </View>
+          <View style={styles.row}>
+
           <TouchableOpacity onPress={() => navigate('ForgotPasswordscreen')}>
             <Text style={styles.link}>Mot de passe oublié</Text>
           </TouchableOpacity>
@@ -103,11 +106,11 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     marginTop: 4,
+    justifyContent: "center"
   },
   link: {
     fontWeight: 'bold',
     color: '#600EE6',
-    marginLeft: 10
   },
   view: {
     height: 40

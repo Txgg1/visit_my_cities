@@ -18,7 +18,8 @@ class Header extends React.Component{
 
 const styles = StyleSheet.create({
     header: {
-        fontSize: 26,
+        textAlign: "center",
+        fontSize: 34,
         color: Theme.colors.primary,
         fontWeight: 'bold',
         paddingVertical: 14,
