@@ -13,7 +13,6 @@ import Camera from './screens/CameraScreen';
 import Localisation from './screens/LocalisationScreen';
 import MenuBurger from './screens/menu';
 
-
 const Stack = createNativeStackNavigator();
 
 const App = () => {
