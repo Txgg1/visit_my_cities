@@ -9,7 +9,7 @@ export default class ForgotPasswordScreen extends React.Component {
     super(props);
     this.state = {
       email: "",
-      newpassword: ""
+      newPassword: ""
     };
   }
 
@@ -24,23 +24,23 @@ export default class ForgotPasswordScreen extends React.Component {
     );
   }
 
-  onSendPressed(state) {
-    const { email, newpassword } = state;
+  onUpdatePressed() {
+    const { email, newPassword } = this.state;
 
-    if (!email || !newpassword) {
+    if (!email || !newPassword) {
       this.alert();
       return;
     }
 
     const formData = new FormData();
-    formData.append("mail", email);
-    formData.append("password", newpassword);
+    formData.append("email", email);
+    formData.append("newPassword", newPassword);
 
-    fetch('http://jdevalik.fr/api/s_sitki/updateuser.php', {
-      method: 'POST',
+    fetch('http://192.168.56.1:8080/users/updatePassword', {
+      method: 'PATCH',
       body: formData,
       headers: {
-        "Content-Type": "multipart/form-data"
+        "Content-Type": "application/x-www-form-urlencoded"
       },
     })
     .then((response) => response.json())
@@ -77,13 +77,13 @@ export default class ForgotPasswordScreen extends React.Component {
         <TextInput
           label="New password"
           returnKeyType="done"
-          value={this.state.newpassword}
-          onChangeText={(text) => this.setState({ newpassword: text })}
+          value={this.state.newPassword}
+          onChangeText={(text) => this.setState({ newPassword: text })}
           style={{ height: 40, borderColor: 'gray', borderWidth: 1, margin: 10 }}
         />
         <View style={styles.view}></View>
 
-        <Button onPress={() => this.onSendPressed(this.state)} style={styles.button} title="Valider" />
+        <Button onPress={() => this.onUpdatePressed()} style={styles.button} title="Valider" />
       </View>
     );
   }

@@ -14,6 +14,7 @@ class LoginScreen extends React.Component {
     };
   }
 
+  // Fonction d'alerte utilisée pour afficher des messages d'erreur
   alerte() {
     Alert.alert(
       'Erreur',
@@ -25,36 +26,42 @@ class LoginScreen extends React.Component {
     );
   }
 
+  // Fonction appelée lorsque le bouton de connexion est pressé
   onLoginPressed() {
     const { email, password } = this.state;
 
+    // Vérification que les champs e-mail et mot de passe sont remplis
     if (!email || !password) {
       this.alerte();
       return;
     }
 
-    const formData = new FormData();
-    formData.append("mail", email);
-    formData.append("password", password);
-
-    fetch('http://jdevalik.fr/api/s_sitki/getuser.php', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        "Content-Type": "multipart/form-data"
-      },
-    })
-    .then((response) => response.json())
-    .then((json) => {
-      if (json !== false) {
-        this.props.navigation.navigate('Dashboard', { username: json.name });
-      } else {
-        Alert.alert('Erreur', 'L\'e-mail ou le mot de passe est incorrect');
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+    // Requête GET pour récupérer les utilisateurs depuis l'API
+    fetch('http://192.168.56.1:8080/users')
+      .then(response => {
+        // Vérification de la réponse du serveur
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        // Conversion de la réponse en JSON
+        return response.json();
+      })
+      .then(data => {
+        // Vérification de l'utilisateur dans les données récupérées
+        const foundUser = data.find(user => user.mail === email && user.password === password);
+        if (foundUser) {
+          // Redirection vers le tableau de bord avec le nom de l'utilisateur trouvé
+          this.props.navigation.navigate('Dashboard', { username: foundUser.name });
+        } else {
+          // Affichage d'un message d'erreur si l'utilisateur n'est pas trouvé
+          Alert.alert('Erreur', 'L\'e-mail ou le mot de passe est incorrect');
+        }
+      })
+      .catch(error => {
+        // Gestion des erreurs lors de la récupération des utilisateurs
+        console.error('Erreur lors de la récupération des utilisateurs:', error);
+        Alert.alert('Erreur', 'Une erreur est survenue lors de la connexion');
+      });
   }
 
   render() {
@@ -64,6 +71,7 @@ class LoginScreen extends React.Component {
       <View>
         <Header title="Connexion" />
 
+        {/* Champ de saisie pour l'e-mail */}
         <InputText
           value={this.state.email}
           onChangeText={(text) => this.setState({ email: text })}
@@ -73,6 +81,7 @@ class LoginScreen extends React.Component {
         />
         <View style={styles.view}></View>
 
+        {/* Champ de saisie pour le mot de passe */}
         <InputText
           label="Password"
           returnKeyType="done"
@@ -82,14 +91,16 @@ class LoginScreen extends React.Component {
         />
         <View style={styles.view}></View>
 
+        {/* Bouton de connexion */}
         <ButtonCustom onPress={() => this.onLoginPressed()} style={styles.button} title="Connexion" />
         <View style={styles.row}>
+          {/* Bouton pour aller à la page d'inscription */}
           <TouchableOpacity onPress={() => navigate('Registerscreen')}>
             <Text style={styles.link}>S'inscrire</Text>
           </TouchableOpacity>
         </View>
-          <View style={styles.row}>
-
+        <View style={styles.row}>
+          {/* Bouton pour réinitialiser le mot de passe */}
           <TouchableOpacity onPress={() => navigate('ForgotPasswordscreen')}>
             <Text style={styles.link}>Mot de passe oublié</Text>
           </TouchableOpacity>

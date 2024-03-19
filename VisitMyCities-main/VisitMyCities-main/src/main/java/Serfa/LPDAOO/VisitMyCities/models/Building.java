@@ -17,7 +17,7 @@ public class Building {
     private String description;
     private double latitude;
     private double longitude;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="architect_id")
     private Architect architect;
 

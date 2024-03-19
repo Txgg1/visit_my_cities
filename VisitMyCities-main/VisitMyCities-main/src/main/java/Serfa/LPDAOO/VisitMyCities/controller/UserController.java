@@ -33,6 +33,15 @@ public class UserController {
         return new ResponseEntity<>(user.get(), HttpStatus.OK);
     }
 
+    @GetMapping("/mail/{mail}")
+    public ResponseEntity<User> getUserByMail(@PathVariable String mail) {
+        Optional<User> user = this.users.findByMail(mail);
+        if (user.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(user.get(), HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     public User deleteUser(@PathVariable int id) {
         return this.users.delete(id);
@@ -40,9 +49,7 @@ public class UserController {
 
     @PostMapping("")
     public User addUser(@RequestBody UserDTO userDTOFromAPI) {
-        User newUser = new User(userDTOFromAPI.mail());
-        this.users.save(userDTOFromAPI);
-        return newUser;
+        return this.users.save(userDTOFromAPI);
     }
 
     @PatchMapping("/{id}")

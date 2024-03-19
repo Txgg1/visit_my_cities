@@ -12,6 +12,7 @@ public class User {
 
     private String name;
     private String firstname;
+    @Column(unique=true)
     private String mail;
     private String password;
 

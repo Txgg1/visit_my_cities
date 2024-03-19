@@ -5,7 +5,7 @@ import Serfa.LPDAOO.VisitMyCities.models.User;
 
 public interface UserDAO {
 
-    public UserDTO save(UserDTO userDTO);
+    public User save(UserDTO userDTO);
     public User delete(int id);
     public User update(int id, UserDTO UserDTO);
 }

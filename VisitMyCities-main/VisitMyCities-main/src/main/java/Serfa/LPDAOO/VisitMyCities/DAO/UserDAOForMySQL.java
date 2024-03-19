@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface UserDAOForMySQL extends UserDAO, JpaRepository<User, Long> {
 
     @Override
-    default UserDTO save(UserDTO userDTO) {
+    default User save(UserDTO userDTO) {
         if(userDTO.mail() == null) {
             throw new RuntimeException("Mail manquant");
         }
@@ -26,7 +26,7 @@ public interface UserDAOForMySQL extends UserDAO, JpaRepository<User, Long> {
             newUser.setPassword(userDTO.password());
         }
         save(newUser);
-        return userDTO;
+        return newUser;
     }
 
     @Override
@@ -60,4 +60,7 @@ public interface UserDAOForMySQL extends UserDAO, JpaRepository<User, Long> {
         save(UserToUpdate.get());
         return UserToUpdate.get();
     }
+
+    Optional<User> findByMail(String mail);
+
 }
