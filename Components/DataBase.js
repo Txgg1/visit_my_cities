@@ -1,117 +1,70 @@
-// import * as SQLite from 'expo-sqlite';
-// import { Alert } from 'react-native';
+import SQLite from 'react-native-sqlite-storage';
 
-// const db = SQLite.openDatabase('database.db');
+const databaseName = 'favorites.db';
+const databaseVersion = '1.0';
+const databaseDisplayName = 'Favorites Database';
+const databaseSize = 200000;
 
-// const createTable = () => {
-//   db.transaction(tx => {
-//     tx.executeSql(
-//       'create table if not exists user (id integer primary key not null, name text, mail text, mdp text);',
-//       [],
-//       (_, result) => {
-//         console.log('Table user créée avec succès', result);
-//       },
-//       (_, error) => {
-//         console.error('Erreur lors de la création de la table user', error);
-//       }
-//     );
-//   });
-// };
+SQLite.DEBUG(true);
+SQLite.enablePromise(true);
 
-// export { createTable, db };
+class Database {
+  constructor() {
+    this.db = null;
+    this.initializeDatabase();
+  }
 
+  initializeDatabase() {
+    return SQLite.openDatabase({ name: databaseName, createFromLocation: '~favorites.db' })
+      .then((db) => {
+        this.db = db;
+        console.log('Database opened');
+      })
+      .catch((error) => {
+        console.error('Unable to open database:', error);
+      });
+  }
 
-// const formData = new FormData();
-// formData.append("name", state.name);
-// formData.append("mail", state.email);
-// formData.append("password", state.password);
+  closeDatabase() {
+    if (this.db) {
+      this.db.close()
+        .then(() => {
+          console.log('Database closed');
+        })
+        .catch((error) => {
+          console.error('Error closing database:', error);
+        });
+    }
+  }
 
-// fetch('http://jdevalik.fr/api/insertuser.php', {
-//     method: 'POST',
-//     body: formData,
-//     headers : {
-//         "Content-Type": "multipart/form-data"
-//     },
-// }).then((response) => response.json())
-//     .then((json) => {
-//     if(json == false) {
-//         Alert.alert(
-//             'Erreur',
-//             'L\'e-mail saisi existe déja. Veuillez saisir une autre adresse mail ou recupérer votre mot de passe',
-//             [
-//                 {text: 'OK'}, onPress: () => console.log('OK pressed'),
-//             ],
-//             { cancelable: false },
-//         );
-//     }else{
-//         navigate('Dashboard', {username: state.name});
-//     }
-// })
-// .catch((error) => {
-//     console.error(error);
-//     }
-// );
+  createTable() {
+    const sql = `CREATE TABLE IF NOT EXISTS favorites (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId INTEGER,
+      buildingId INTEGER,
+      buildingName TEXT,
+      latitude REAL,
+      longitude REAL,
+      FOREIGN KEY (userId) REFERENCES users(id)
+    );`;
+    return this.db.executeSql(sql);
+  }
 
+  addFavorite(userId, buildingId, buildingName, latitude, longitude) {
+    const sql = `INSERT INTO favorites (userId, buildingId, buildingName, latitude, longitude)
+                 VALUES (?, ?, ?, ?, ?);`;
+    return this.db.executeSql(sql, [userId, buildingId, buildingName, latitude, longitude]);
+  }
 
-// const formData= new FormData();
-// formData.append("mail", state.email);
-// formData.append("password", state.password);
+  removeFavorite(id) {
+    const sql = `DELETE FROM favorites WHERE id = ?;`;
+    return this.db.executeSql(sql, [id]);
+  }
 
-// fetch('http://jdevalik.fr/api/updateuser.php', {
-//     method: 'POST',
-//     body: formData,
-//     headers : {
-//         "Content-Type": "multipart/form-data"
-//     },
-// }).then((response) => response.json())
-//     .then((json) => {
-//     if(json == false) {
-//         Alert.alert(
-//             'Erreur',
-//             'L\'e-mail saisi existe pas',
-//             [
-//                 {text: 'OK'}, onPress: () => console.log('OK pressed'),
-//             ],
-//             { cancelable: false },
-//         );
-//     }else{
-//         navigate('Loginscreen');
-//     }
-// })
-// .catch((error) => {
-//     console.error(error);
-//     }
-// );
+  getFavorites(userId) {
+    const sql = `SELECT * FROM favorites WHERE userId = ?;`;
+    return this.db.executeSql(sql, [userId]);
+  }
+}
 
-
-// const formData= new FormData();
-// formData.append("mail", state.email);
-// formData.append("password", state.password);
-
-// fetch('http://jdevalik.fr/api/getuser.php', {
-//     method: 'POST',
-//     body: formData,
-//     headers : {
-//         "Content-Type": "multipart/form-data"
-//     },
-// }).then((response) => console.log(response))
-//     .then((responses) => responses.json())
-//         .then((json) => {
-//         if(json != false){
-//             navigate('Dashboard', {username: json.name})
-//         }else{
-//             Alert.alert(
-//                 'Erreur',
-//                 'L\'e-mail ou le mot de passe est incorrect',
-//                 [
-//                     {text: 'OK'}, onPress: () => console.log('OK pressed'),
-//                 ],
-//                 { cancelable: false },
-//             );
-//             }
-//         })
-//     .catch((error) => {
-//         console.error(error);
-//         }
-//     );
-
+export default new Database();

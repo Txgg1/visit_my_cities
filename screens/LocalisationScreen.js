@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { View, StyleSheet, TouchableOpacity, Text, Modal, TextInput, Button } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Text, Modal, TextInput, Button, FlatList, Image,ScrollView, Dimensions } from "react-native";
 import * as Location from 'expo-location';
 import MapView, { Marker } from "react-native-maps";
+import { BuildingDetailsScrollView, BuildingDetailsText } from "../Components/BuildingText";
 
 export default class LocalisationScreen extends Component {
     constructor(props) {
@@ -22,6 +23,10 @@ export default class LocalisationScreen extends Component {
             modalVisible: false, // Indique si la boîte de dialogue modale est visible ou non
             selectedMarker: null, // Marqueur sélectionné par l'utilisateur
             buildings: [], // Liste des bâtiments récupérés depuis le backend
+            selectedPhoto: null, // Photo sélectionnée pour affichage dans le modal
+            architects: [], // Liste des architectes
+
+
         };
         this.onRegionChange = this.onRegionChange.bind(this);
         this.handleRemoveMarker = this.handleRemoveMarker.bind(this); // Binder la méthode handleRemoveMarker
@@ -75,9 +80,18 @@ export default class LocalisationScreen extends Component {
         this.setState({ markers: newMarkers, modalVisible: false, markerName: "" });
     };
 
-    handleMarkerPress = (marker) => {
+    handleMarkerPress = async (marker) => {
         this.setState({ selectedMarker: marker });
+        try {
+            const photos = await this.fetchBuildingPhotos(marker.id); // Supposons que marker.id soit l'identifiant du bâtiment
+            this.setState({ buildingPhotos: photos });
+            const architects = await this.fetchArchitects(marker.id); // Supposons que marker.id soit l'identifiant du bâtiment
+            this.setState({ buildingArchitect: architects });
+        } catch (error) {
+            console.error('Error fetching building photos:', error);
+        }
     };
+    
 
     handleRemoveMarker = () => {
         const { markers, selectedMarker } = this.state;
@@ -85,11 +99,23 @@ export default class LocalisationScreen extends Component {
         this.setState({ markers: filteredMarkers, selectedMarker: null }); // Supprimer le marqueur sélectionné de la liste
     };
 
+    handlePhotoPress = (photo) => {
+        this.setState({ selectedPhoto: photo });
+    };
+    
+    closePhotoModal = () => {
+        this.setState({ selectedPhoto: null });
+    };
+
+
+
     async fetchBuildings() {
         try {
-            const response = await fetch('http://192.168.56.1:8080/buildings'); // Récupérer les bâtiments depuis le backend
+            const response = await fetch('http://10.31.251.154:8080/buildings'); // Récupérer les bâtiments depuis le backend
+            
             if (!response.ok) {
                 throw new Error('Failed to fetch buildings');
+                
             }
             const buildings = await response.json();
             this.setState({ buildings }); // Mettre à jour la liste des bâtiments récupérés
@@ -97,9 +123,42 @@ export default class LocalisationScreen extends Component {
             console.error('Error fetching buildings:', error); // Gérer les erreurs lors de la récupération des bâtiments
         }
     }
+    async fetchBuildingPhotos(building_id) {
+        try {
+            const response = await fetch(`http://10.31.251.154:8080/buildings/${building_id}/photos`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch building photos');
+            }
+            const photos = await response.json();
+            return photos;
+        } catch (error) {
+            console.error('Error fetching building photos:', error);
+            throw error;
+        }
+    }
+
+    async fetchArchitects(building_id) {
+        try {
+            const response = await fetch(`http://10.31.251.154:8080/buildings/${building_id}/architects`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch architects');
+            }
+            const architects = await response.json();
+            return architects;
+        } catch (error) {
+            console.error('Error fetching architects:', error);
+            throw error;
+        }
+    }
+
+    
 
     render() {
-        return (
+        const dimensions = Dimensions.get('window');   
+        const imageWidth = dimensions.width;
+        const imageHeight = dimensions.height;
+        return ( 
+            
             <View style={styles.container}>
                 {/* Boîte de dialogue modale pour ajouter un marqueur */}
                 <Modal
@@ -165,22 +224,62 @@ export default class LocalisationScreen extends Component {
                 >
                     <View style={styles.modalContainer}>
                         <View style={styles.modalContent}>
-                            <Text>Nom du bâtiment: {this.state.selectedMarker?.name}</Text>
-                            <Text>Adresse: {this.state.selectedMarker?.address}</Text>
-                            <Text>Description: {this.state.selectedMarker?.description}</Text>
-                            <Text>Date de début de construction: {this.state.selectedMarker?.startBuild}</Text>
-                            <Text>Date de fin de construction: {this.state.selectedMarker?.endBuild}</Text>
-                            <Text>Latitude: {this.state.selectedMarker?.latitude}</Text>
-                            <Text>Longitude: {this.state.selectedMarker?.longitude}</Text>
+                        {/* {console.log(this.state.selectedMarker?.id)} */}
+
+                            <BuildingDetailsText label="Nom du bâtiment" value={this.state.selectedMarker?.name} />
+                            <BuildingDetailsText label="Adresse" value={this.state.selectedMarker?.address} />
+                            <BuildingDetailsScrollView label="Description" value={this.state.selectedMarker?.description} />                            
+                            <BuildingDetailsText label="Date de début de construction" value={this.state.selectedMarker?.startBuild}/>
+                            <BuildingDetailsText label="Date de fin de construction" value={this.state.selectedMarker?.endBuild} />
+                            <BuildingDetailsText label="Architectes" />
+                            <FlatList 
+                                data={this.state.buildingArchitect}
+                                renderItem={({ item }) => (
+                                    <Text>{item.name} {item.firstname}</Text>
+                                )} 
+                                keyExtractor={(item, index) => index.toString()}
+                            />
+                            {/* <BuildingDetailsText label="Architecte" value={this.state.selectedMarker?.architect.name} /> */}
+                            <BuildingDetailsText label="Latitude" value={this.state.selectedMarker?.latitude} />
+                            <BuildingDetailsText label="Longitude" value={this.state.selectedMarker?.longitude} />
+                            <FlatList style={styles.photosList}
+                                data={this.state.buildingPhotos}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity onPress={() => this.handlePhotoPress(item)}>
+                                        <Image source={{ uri: item.url }} style={styles.image} />
+                                    </TouchableOpacity>
+                                )}
+                                keyExtractor={(item, index) => index.toString()}
+                                numColumns={3}
+                            />
                             <Button title="Supprimer" onPress={this.handleRemoveMarker} />
+                            <TouchableOpacity style={styles.closeButton} onPress={() => this.setState({ selectedMarker: null })}>
+                                <Text style={styles.closeButtonText}>Fermer</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={!!this.state.selectedPhoto}
+                    onRequestClose={() => this.setState({ selectedPhoto: null })}
+                >
+                    {/* Contenu du modal pour afficher la photo sélectionnée */}
+                    <View style={styles.modalContentImage}>
+                        <Image source={{ uri: this.state.selectedPhoto?.url }} style={{height: imageHeight , width : imageWidth}} resizeMode="contain" />
+                        <TouchableOpacity style={styles.closeButton} onPress={() => this.setState({ selectedPhoto: null })}>
+                            <Text style={styles.closeButtonText}>Fermer</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Modal>
+
 
             </View>
         );
     }
 }
+const {width} = Dimensions.get("window");
 
 const styles = StyleSheet.create({
     container: {
@@ -232,9 +331,29 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 10,
         elevation: 5,
-        height:"50%",
-        width:"60%",
+        height:"100%",
+        width:"100%",
         justifyContent:"space-between"
+    },
+    modalContentImage: {
+        backgroundColor: 'white',
+        borderRadius: 10,
+        elevation: 5,
+        height:"100%",
+        width:"100%",
+        justifyContent:"space-between"
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        borderRadius: 5,
+        padding: 5,
+    },
+    closeButtonText: {
+        color: '#000',
+        fontWeight: 'bold',
     },
     input: {
         height: 40,
@@ -243,4 +362,17 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         paddingHorizontal: 10,
     },
+    scrollView:{
+        height:20
+    },
+    image : {
+        width: width / 3.5 - 10,
+        height: 150,
+        margin: 5
+    },
+    photosList: {
+    flexDirection : "column",
+    flexWrap: "wrap",
+    }
+    
 });

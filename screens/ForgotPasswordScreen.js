@@ -3,13 +3,15 @@ import { Text, StyleSheet, TouchableOpacity, Alert, TextInput, Button, View } fr
 import { emailValidator, passwordValidator } from '../core/utils';
 import Header from '../Components/Header';
 import { Theme } from '../core/theme';
+import PasswordInput from '../Components/PasswordInput'; // Importer le composant PasswordInput
 
 export default class ForgotPasswordScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       email: "",
-      newPassword: ""
+      newPassword: "",
+      confirmPassword: "",
     };
   }
 
@@ -25,31 +27,48 @@ export default class ForgotPasswordScreen extends React.Component {
   }
 
   onUpdatePressed() {
-    const { email, newPassword } = this.state;
+    const { email, newPassword, confirmPassword } = this.state;
 
-    if (!email || !newPassword) {
+    if (!email || !newPassword || !confirmPassword) {
       this.alert();
       return;
     }
 
-    const formData = new FormData();
-    formData.append("email", email);
-    formData.append("newPassword", newPassword);
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
+      return;
+    }
 
-    fetch('http://192.168.56.1:8080/users/updatePassword', {
-      method: 'PATCH',
-      body: formData,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
+    const data = {
+      email: email,
+      password: newPassword
+    };
+
+    fetch(`http://192.168.56.1:8080/users/mail/${email}`, {
+      method: 'GET',
     })
     .then((response) => response.json())
-    .then((json) => {
-      if (json === false) {
+    .then((user) => {
+      if (!user) {
         Alert.alert('Erreur', 'L\'e-mail saisi n\'existe pas');
       } else {
-        this.props.navigation.navigate('Loginscreen');
+        fetch(`http://192.168.56.1:8080/users/${user.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(data),
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        })
+        .then((response) => response.json())
+        .then(() => {
+          this.props.navigation.navigate('Loginscreen');
+        })
+        .catch((error) => {
+          console.error(error);
+        });
       }
+      {console.log(data)}
+      {console.log(user)}
     })
     .catch((error) => {
       console.error(error);
@@ -74,14 +93,17 @@ export default class ForgotPasswordScreen extends React.Component {
         />
         <View style={styles.view}></View>
 
-        <TextInput
-          label="New password"
-          returnKeyType="done"
+        <PasswordInput // Utiliser le composant PasswordInput pour le nouveau mot de passe
+          label="New Password"
           value={this.state.newPassword}
           onChangeText={(text) => this.setState({ newPassword: text })}
-          style={{ height: 40, borderColor: 'gray', borderWidth: 1, margin: 10 }}
         />
-        <View style={styles.view}></View>
+
+        <PasswordInput // Utiliser le composant PasswordInput pour la confirmation du mot de passe
+          label="Confirm new password"
+          value={this.state.confirmPassword}
+          onChangeText={(text) => this.setState({ confirmPassword: text })}
+        />
 
         <Button onPress={() => this.onUpdatePressed()} style={styles.button} title="Valider" />
       </View>

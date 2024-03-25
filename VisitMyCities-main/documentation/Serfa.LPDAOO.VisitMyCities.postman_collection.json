@@ -1,0 +1,926 @@
+{
+	"info": {
+		"_postman_id": "5fdc6087-01b0-4bc9-92e1-e38bd42032e3",
+		"name": "Serfa.LPDAOO.VisitMyCities",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33317840"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "getUsers()",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserById(id)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserByMail(mail)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/mail/stephane.donditz@uha.fr",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"mail",
+								"stephane.donditz@uha.fr"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllBuildingsFromOneUser(UId)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/1/buildings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"1",
+								"buildings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addUser()",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"mail\": \"stephane.donditz@uha.fr\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteUser(id)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateUser(id)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstname\": \"Stéphane\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "promoteToExpert(id)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/role/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"role",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "demoteToVisitor(id)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/role/demote/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"role",
+								"demote",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addBuildingToAUser(UId, BId)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/1/buildingToAdd/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"1",
+								"buildingToAdd",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeBuildingFromAUser(UId, BId)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/1/buildingToRemove/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"1",
+								"buildingToRemove",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Architects",
+			"item": [
+				{
+					"name": "getArchitects()",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/architects",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"architects"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getArchitectById(id)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/architects/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"architects",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addArchitect()",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Müller\",\r\n    \"firstname\": \"Joseph\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/architects",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"architects"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteArchitect(id)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/architects/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"architects",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateArchitect(id)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"firstname\": \"Leonardo\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/architects/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"architects",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Buildings",
+			"item": [
+				{
+					"name": "getBuildings()",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/buildings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBuildingById(id)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/buildings/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBuildingsByArchitectId(AId)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/buildings/architect/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings",
+								"architect",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllArchitectsFromOneBuilduing(BId)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/buildings/1/architects",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings",
+								"1",
+								"architects"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllPhotosFromOneBuilduing(BId)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/buildings/1/photos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings",
+								"1",
+								"photos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addBuilding()",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"name\": \"Tour de l'Europe\",\r\n        \"address\": \"3 Boulevard de l'Europe 68100 Mulhouse\",\r\n        \"startBuild\": 1969 ,\r\n        \"endBuild\": 1972,\r\n        \"description\": \"La Tour de l'Europe est un gratte-ciel en béton armé essentiellement résidentiel qui est situé dans le centre-ville de Mulhouse, en France. Sa forme triangulaire symbolise, entre autres, la région mulhousienne, zone de jonction de trois pays européens : l'Allemagne, la France et la Suisse.\",\r\n        \"latitude\": 47.749929,\r\n        \"longitude\": 7.340429\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/buildings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteBuilding(id)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/buildings/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateBuilding(id)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n        \"architect\": {\r\n            \"id\": 1\r\n        }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/buildings/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addArchitectToOneBuilding(BId, AId)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/buildings/1/architectToAdd/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings",
+								"1",
+								"architectToAdd",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeArchitectFromOneBuilding(id)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/buildings/1/architectToRemove/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings",
+								"1",
+								"architectToRemove",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeOnePhoto(photo_id)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/buildings/1/photoToRemove/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings",
+								"1",
+								"photoToRemove",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cities",
+			"item": [
+				{
+					"name": "getCities()",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cities",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCityById(id)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cities/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cities",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCityByName(name)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cities/name/mulhouse",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cities",
+								"name",
+								"mulhouse"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCityWithThatBuilding(buildingId)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cities/building/204",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cities",
+								"building",
+								"204"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllBuilduingsFromOneCity()",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cities/buildings/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cities",
+								"buildings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addCity()",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Mulhouse\",\r\n    \"description\": \"Située dans le Sud de l’Alsace, Mulhouse est la seconde ville de la région par sa taille. Ville d’art et d’histoire, elle offre de beaux monuments et ensembles architecturaux. La cité du Bollwerk, surnom qui lui est donné, bénéficie également de musées de très grande réputation. Les plus connus sont les Cités de l’Automobile et du Train.\",\r\n    \"latitude\": 47.7508,\r\n    \"longitude\": 7.3359\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/cities",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteCity(id)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cities/0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cities",
+								"0"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateCity(id)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Mulhouse\",\r\n    \"description\": \"Située dans le Sud de l’Alsace, Mulhouse est la seconde ville de la région par sa taille. Ville d’art et d’histoire, elle offre de beaux monuments et ensembles architecturaux. La cité du Bollwerk, surnom qui lui est donné, bénéficie également de musées de très grande réputation. Les plus connus sont les Cités de l’Automobile et du Train.\",\r\n    \"latitude\": 47.7508,\r\n    \"longitude\": 7.3359\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/cities/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cities",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addOneExistingBuiding(CId, BId)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/cities/1/buildingToAdd/9",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cities",
+								"1",
+								"buildingToAdd",
+								"9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeOneBuilding(CId, BId)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cities/1/buildingToRemove/9",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cities",
+								"1",
+								"buildingToRemove",
+								"9"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Photos",
+			"item": [
+				{
+					"name": "getPhotos()",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/photos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"photos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPhotoById(id)",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "addPhoto(building_id)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"blabla\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/photos/building/99",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"photos",
+								"building",
+								"99"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deletePhoto(id)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/photos/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"photos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updatePhoto(id)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/photos/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"photos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "localhost:8080",
+			"type": "string"
+		}
+	]
+}

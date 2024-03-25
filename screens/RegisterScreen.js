@@ -4,6 +4,7 @@ import Header from '../Components/Header';
 import { connect } from 'react-redux';
 import InputText from "../Components/InputText";
 import ButtonCustom from '../Components/ButtonCustom';
+import PasswordInput from '../Components/PasswordInput';
 
 class RegisterScreen extends React.Component {
   constructor(props) {
@@ -13,6 +14,7 @@ class RegisterScreen extends React.Component {
       name: "",
       email: "",
       password: "",
+      confirmPassword: "", // Ajouter un état pour le mot de passe de confirmation
     };
   }
 
@@ -30,16 +32,22 @@ class RegisterScreen extends React.Component {
 
   // Fonction appelée lorsque le bouton d'inscription est pressé
   onSignUpPressed = async () => {
-    const { name, email, password } = this.state;
+    const { name, email, password, confirmPassword } = this.state;
 
     // Vérification que tous les champs sont remplis
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !confirmPassword) {
       this.alerte();
       return;
     }
 
+    // Vérification que les mots de passe correspondent
+    if (password !== confirmPassword) {
+      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
+      return;
+    }
+
     try {
-      const response = await fetch('http://192.168.56.1:8080/users', {
+      const response = await fetch('http://10.31.251.154:8080/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,7 +67,7 @@ class RegisterScreen extends React.Component {
       }
 
       const userData = await response.json();
-      this.props.navigation.navigate('Dashboard', { username: userData.name });
+      this.props.navigation.navigate('Dashboard', { username: userData.name});
     } catch (error) {
       console.error(error);
       Alert.alert('Erreur', 'Une erreur est survenue lors de l\'inscription');
@@ -95,12 +103,18 @@ class RegisterScreen extends React.Component {
               onChangeText={(text) => this.setState({ email: text })}
           />
           <View style={styles.view}></View>
-          <InputText
+          <PasswordInput
               label="Mot de passe"
-              returnKeyType="done"
+              returnKeyType="next"
               value={this.state.password}
               onChangeText={(text) => this.setState({ password: text })}
-              secureTextEntry={true}
+          />
+          <View style={styles.view}></View>
+          <PasswordInput
+              label="Confirmer le mot de passe"
+              returnKeyType="done"
+              value={this.state.confirmPassword}
+              onChangeText={(text) => this.setState({ confirmPassword: text })}
           />
           <View style={styles.view}></View>
           <ButtonCustom onPress={() => this.onSignUpPressed()} title="Inscription" style={styles.button} />

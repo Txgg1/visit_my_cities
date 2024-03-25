@@ -4,6 +4,8 @@ import Header from '../Components/Header';
 import InputText from '../Components/InputText';
 import { connect } from "react-redux";
 import ButtonCustom from '../Components/ButtonCustom';
+import PasswordInput from '../Components/PasswordInput'; // Importer le composant PasswordInput
+
 
 class LoginScreen extends React.Component {
   constructor(props) {
@@ -37,7 +39,7 @@ class LoginScreen extends React.Component {
     }
 
     // Requête GET pour récupérer les utilisateurs depuis l'API
-    fetch('http://192.168.56.1:8080/users')
+    fetch('http://10.31.251.154:8080/users')
       .then(response => {
         // Vérification de la réponse du serveur
         if (!response.ok) {
@@ -51,7 +53,7 @@ class LoginScreen extends React.Component {
         const foundUser = data.find(user => user.mail === email && user.password === password);
         if (foundUser) {
           // Redirection vers le tableau de bord avec le nom de l'utilisateur trouvé
-          this.props.navigation.navigate('Dashboard', { username: foundUser.name });
+          this.props.navigation.navigate('Dashboard', { username: foundUser.name, isLoggedIn:true });
         } else {
           // Affichage d'un message d'erreur si l'utilisateur n'est pas trouvé
           Alert.alert('Erreur', 'L\'e-mail ou le mot de passe est incorrect');
@@ -82,7 +84,7 @@ class LoginScreen extends React.Component {
         <View style={styles.view}></View>
 
         {/* Champ de saisie pour le mot de passe */}
-        <InputText
+        <PasswordInput
           label="Password"
           returnKeyType="done"
           value={this.state.password}

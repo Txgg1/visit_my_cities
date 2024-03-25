@@ -56,9 +56,9 @@ class Dashboard extends React.Component {
                 <Button title="Geoloc"
                         onPress={() => navigation.navigate('Localisation')}
                 />
-                <Button title="Menu"
+                {/* <Button title="Menu"
                         onPress={() => navigation.navigate('MenuBurger')}
-                />
+                /> */}
                 <ButtonCustom onPress={() => navigation.navigate('Homescreen')} title="Déconnexion" />
             </View>
         );
