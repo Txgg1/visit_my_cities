@@ -42,6 +42,16 @@ public class BuildingController {
         return new ResponseEntity<>(building.get(), HttpStatus.OK);
     }
 
+    // Récupérer tous les bâtiments à partir de l'id du type
+    @GetMapping("/type/{type_id}")
+    public ResponseEntity<List<Building>> getBuildingsByTypeId(@PathVariable long type_id) {
+        Optional<Type> typeOptional = this.types.findById(type_id);
+        if (typeOptional.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(this.buildings.findByType_Id(typeOptional.get().getId()), HttpStatus.OK);
+    }
+
     // Récupérer tous les bâtiments à partir de l'id d'un architect
     @GetMapping("/architect/{architect_id}")
     public ResponseEntity<List<Building>> getBuildingsByArchitectId(@PathVariable long architect_id) {

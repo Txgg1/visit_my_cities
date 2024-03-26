@@ -19,6 +19,7 @@ import {
   BuildingDetailsText,
 } from "../Components/BuildingText";
 import * as ImagePicker from "expo-image-picker"; // Importez le module pour la sélection d'image
+import BuildingTypePicker from "../Components/BuildingTypePicker";
 
 export default class LocalisationScreen extends Component {
   constructor(props) {
@@ -42,6 +43,9 @@ export default class LocalisationScreen extends Component {
       buildings: [], // Liste des bâtiments récupérés depuis le backend
       selectedPhoto: null, // Photo sélectionnée pour affichage dans le modal
       architects: [], // Liste des architectes
+      buildingTypes: [], // Liste des types de bâtiments
+      selectedBuildingType: null, // Type de bâtiment sélectionné
+      isBuildingTypeModalVisible: false,
     };
     this.onRegionChange = this.onRegionChange.bind(this);
     this.handleRemoveMarker = this.handleRemoveMarker.bind(this); // Binder la méthode handleRemoveMarker
@@ -50,6 +54,7 @@ export default class LocalisationScreen extends Component {
   componentDidMount() {
     this.useEffect();
     this.fetchBuildings(); // Appeler la méthode fetchBuildings lorsque le composant est monté
+    this.fetchBuildingTypes();
   }
 
   async useEffect() {
@@ -71,6 +76,12 @@ export default class LocalisationScreen extends Component {
       },
     });
   }
+
+  toggleBuildingTypeModal = () => {
+    this.setState((prevState) => ({
+      isBuildingTypeModalVisible: !prevState.isBuildingTypeModalVisible,
+    }));
+  };
 
   handleAddMarker = () => {
     if (!this.state.isAddingMarker) {
@@ -182,6 +193,121 @@ export default class LocalisationScreen extends Component {
     }
   };
 
+  // Ajoutez cette fonction à votre classe LocalisationScreen
+  handleResetFilters = () => {
+    this.setState({ selectedBuildingType: null });
+  };
+
+  handleTypeSelection = (selectedType) => {
+    this.setState({ selectedBuildingType: selectedType });
+  };
+  
+  
+
+  renderFilteredBuildings = () => {
+    const { buildings, selectedBuildingType } = this.state;
+    if (!selectedBuildingType) {
+      return buildings.map((building, index) => (
+        <Marker
+          key={index}
+          coordinate={{
+            latitude: building.latitude,
+            longitude: building.longitude,
+          }}
+          title={building.name}
+          onPress={() => this.handleMarkerPress(building)} 
+        />
+      ));
+    } else {
+      const filteredBuildings = buildings.filter(
+        (building) => building.type && building.type.id === selectedBuildingType.id
+      );
+      return filteredBuildings.map((building, index) => (
+        <Marker
+          key={index}
+          coordinate={{
+            latitude: building.latitude,
+            longitude: building.longitude,
+          }}
+          title={building.name}
+          onPress={() => this.handleMarkerPress(building)} 
+        />
+      ));
+    }
+  };
+  
+  handleValidateBuildingType = () => {
+    const { selectedBuildingType, buildings } = this.state;
+
+    if (selectedBuildingType) {
+      // Filtrer les marqueurs en fonction du type de bâtiment sélectionné
+      const filteredMarkers = buildings.filter(
+        (building) => building.type.id === selectedBuildingType.id
+      );
+
+      // Mettre à jour l'état avec les marqueurs filtrés
+      this.setState({
+        filteredMarkers,
+        showAllMarkers: false, // Si vous avez un état pour afficher tous les marqueurs, mettez-le à false
+      });
+    }
+  };
+  
+  
+  renderBuildingTypesList = () => {
+    return this.state.buildingTypes.map((type) => (
+      <TouchableOpacity
+        key={type.id}
+        onPress={() => this.handleTypeSelection(type)}
+        style={[
+          styles.buildingTypeItem,
+          this.state.selectedBuildingType === type.id && styles.selectedBuildingType,
+        ]}
+      >
+        <Text>{type.name}</Text>
+      </TouchableOpacity>
+    ));
+  };
+  
+  
+  filterBuildingByType = (building) => {
+    const { selectedBuildingType } = this.state;
+    if (!selectedBuildingType) {
+      return true; // Si aucun filtre n'est sélectionné, afficher tous les bâtiments
+    }
+    return building.type.id === selectedBuildingType.id;
+  };
+  
+  async fetchBuildingTypes() {
+    try {
+      const response = await fetch("http://10.31.251.154:8080/types");
+      if (!response.ok) {
+        throw new Error("Failed to fetch building types");
+      }
+      const buildingTypes = await response.json();
+      this.setState({ buildingTypes });
+    } catch (error) {
+      console.error("Error fetching building types:", error);
+      alert("An error occurred while retrieving the building types.");
+    }
+  }
+  
+
+  async fetchBuildingsByType(typeId) {
+    try {
+      const response = await fetch(`http://10.31.251.154:8080/buildings/type/${typeId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch buildings by type");
+      }
+      const filteredBuildings = await response.json();
+      this.setState({ filteredBuildings });
+    } catch (error) {
+      console.error("Error fetching buildings by type:", error);
+      alert("An error occurred while retrieving the buildings.");
+    }
+  }
+
+
   async fetchBuildings() {
     try {
       const response = await fetch("http://10.31.251.154:8080/buildings"); // Récupérer les bâtiments depuis le backend
@@ -231,8 +357,55 @@ export default class LocalisationScreen extends Component {
     const dimensions = Dimensions.get("window");
     const imageWidth = dimensions.width;
     const imageHeight = dimensions.height;
+    const {
+      selectedBuildingType,
+      buildingTypes,
+      buildings,
+      selectedMarker,
+      modalVisible,
+      selectedPhoto,
+    } = this.state;
+
+    const filteredBuildings = selectedBuildingType
+      ? buildings.filter((building) => building.type.id === selectedBuildingType.id)
+      : buildings;
+
+
     return (
       <View style={styles.container}>
+        <View>
+          {/* Autres éléments existants */}
+
+          {/* Autres éléments existants */}
+        </View>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.isBuildingTypeModalVisible}
+          onRequestClose={this.toggleBuildingTypeModal}
+        >
+          <View style={styles.modalContainerType}>
+            <View style={styles.modalContentType}>
+              <Text>Sélectionner un type de bâtiment :</Text>
+              <FlatList
+                data={this.state.buildingTypes}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.setState({ selectedBuildingType: item });
+                      this.toggleBuildingTypeModal();
+                    }}
+                  >
+                    <Text style={styles.menuItem}>{item.label}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+              <Button title="Valider" onPress={this.handleValidateBuildingType} />
+            </View>
+          </View>
+        </Modal>
+
         {/* Boîte de dialogue modale pour ajouter un marqueur */}
         <Modal
           animationType="slide"
@@ -270,6 +443,15 @@ export default class LocalisationScreen extends Component {
             <TouchableOpacity onPress={this.handleAddMarker}>
               <Text style={styles.menuItem}>Ajouter</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={this.toggleBuildingTypeModal}>
+              <Text style={styles.menuItem}>
+                Sélectionner un type de bâtiment
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={this.handleResetFilters}>
+              <Text style={styles.menuItem}>Réinitialiser les filtres</Text>
+            </TouchableOpacity>
+            {/* <ScrollView>{this.renderBuildingTypesList()}</ScrollView> */}
           </View>
         )}
 
@@ -280,7 +462,7 @@ export default class LocalisationScreen extends Component {
           onRegionChange={this.onRegionChange}
           onPress={this.handleMapPress}
         >
-          {this.state.buildings.map((building, index) => (
+          {filteredBuildings.map((building, index) => (
             <Marker
               key={index}
               coordinate={{
@@ -334,11 +516,16 @@ export default class LocalisationScreen extends Component {
                 )}
                 keyExtractor={(item, index) => index.toString()}
               />
+              <BuildingDetailsText
+                label="Type"
+                value={this.state.selectedMarker?.type.label}
+              />
               {/* <BuildingDetailsText label="Architecte" value={this.state.selectedMarker?.architect.name} /> */}
               <BuildingDetailsText
                 label="Latitude"
                 value={this.state.selectedMarker?.latitude}
               />
+
               <BuildingDetailsText
                 label="Longitude"
                 value={this.state.selectedMarker?.longitude}
@@ -387,8 +574,9 @@ export default class LocalisationScreen extends Component {
               <Text style={styles.closeButtonText}>Fermer</Text>
             </TouchableOpacity>
           </View>
-        </Modal>
+        </Modal>        
       </View>
+      
     );
   }
 }
@@ -403,13 +591,13 @@ const styles = StyleSheet.create({
   },
   menuToggle: {
     position: "absolute",
-    top: 20,
-    left: 20,
+    top: 5,
+    alignSelf: "center",
     zIndex: 999,
     backgroundColor: "rgba(0,0,0,0.5)",
     padding: 10,
     borderRadius: 5,
-    width: 80,
+    width: "50%",
   },
   menuToggleText: {
     color: "white",
@@ -419,12 +607,12 @@ const styles = StyleSheet.create({
   menu: {
     position: "absolute",
     top: 60,
-    left: 20,
+    alignSelf: "center",
     zIndex: 999,
     backgroundColor: "rgba(0,0,0,0.5)",
     padding: 10,
     borderRadius: 5,
-    width: 80,
+    width: "50%",
   },
   menuItem: {
     color: "white",
@@ -438,6 +626,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
+  modalContainerType: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(5, 0, 0, 0.5)",
+    height: "max-content"
+  },
   modalContent: {
     backgroundColor: "white",
     padding: 20,
@@ -447,6 +641,14 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "space-between",
   },
+  // modalContentType: {
+  //   padding: 20,
+  //   borderRadius: 10,
+  //   elevation: 5,
+  //   height: "20%",
+  //   width: "100%",
+  //   justifyContent: "space-between",
+  // },
   modalContentImage: {
     backgroundColor: "white",
     borderRadius: 10,
@@ -486,4 +688,23 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     flexWrap: "wrap",
   },
+  buildingTypesContainer: {
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    paddingVertical: 10,
+  },
+  buildingTypeButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  selectedBuildingTypeButton: {
+    backgroundColor: "blue",
+  },
+  buildingTypeButtonText: {
+    color: "#000",
+  },
+  
 });

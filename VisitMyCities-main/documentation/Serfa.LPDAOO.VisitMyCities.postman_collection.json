@@ -392,6 +392,25 @@
 					"response": []
 				},
 				{
+					"name": "getBuildingsByType_Id(TId)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/buildings/type/6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings",
+								"type",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "getBuildingsByArchitectId(AId)",
 					"request": {
 						"method": "GET",

@@ -143,4 +143,7 @@ public interface BuildingDAOForMySQL extends JpaRepository<Building, Long> {
 
     @Query("select b.photos from Building b where b.id = :id")
     List<Photo> findPhotosByBuildingId(@Param("id") long id);
+
+    List<Building> findByType_Id(Long id);
+
 }
