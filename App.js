@@ -11,7 +11,7 @@ import { Provider } from 'react-redux';
 import Store from './store/configStore';
 import Camera from './screens/CameraScreen';
 import Localisation from './screens/LocalisationScreen';
-import MenuBurger from './screens/menu';
+import FavoriteBuildingsScreen from './screens/FavoriteBuildingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +35,7 @@ const App = () => {
           <Stack.Screen name="Dashboard" component={Dashboard} />
           <Stack.Screen name="Camera" component={Camera} />
           <Stack.Screen name="Localisation" component={Localisation}/>
+          <Stack.Screen name="FavoriteBuildings" component={FavoriteBuildingsScreen} />
 
         </Stack.Navigator>
       </NavigationContainer>

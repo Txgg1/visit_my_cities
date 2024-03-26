@@ -3,21 +3,19 @@ package Serfa.LPDAOO.VisitMyCities.models;
 import jakarta.persistence.*;
 
 @Entity
-public class Photo {
+public class Type {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String url;
+    private String label;
 
-    public Photo() {
+    public Type() {
     }
 
-    public Photo(Long id, String url) {
+    public Type(Long id, String label) {
         this.id = id;
-        this.url = url;
+        this.label = label;
     }
 
     public Long getId() {
@@ -28,11 +26,11 @@ public class Photo {
         this.id = id;
     }
 
-    public String getUrl() {
-        return url;
+    public String getLabel() {
+        return label;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setLabel(String label) {
+        this.label = label;
     }
 }

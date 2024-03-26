@@ -96,6 +96,9 @@ public interface UserDAOForMySQL extends JpaRepository<User, Long> {
         if(UserToUpdate.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        if(UserToUpdate.get().getBuildings().contains(buildingToAdd)) {
+            return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
+        }
         UserToUpdate.get().getBuildings().add(buildingToAdd);
         save(UserToUpdate.get());
         return new ResponseEntity<>(UserToUpdate.get(), HttpStatus.OK);
@@ -111,6 +114,7 @@ public interface UserDAOForMySQL extends JpaRepository<User, Long> {
         return new ResponseEntity<>(UserToUpdate.get(), HttpStatus.OK);
     }
 
+    // Obtenir la liste des bâtiments d'un utilisateur
     @Query("select u.buildings from User u where u.id = :id")
     List<Building> findBuildingsByUserId(@Param("id") long id);
 }

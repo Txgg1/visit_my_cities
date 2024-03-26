@@ -1,4 +1,4 @@
 package Serfa.LPDAOO.VisitMyCities.controller;
 
-public record PhotoDTO(long id, String url) {
+public record TypeDTO(long id, String label) {
 }

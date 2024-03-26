@@ -1,30 +1,27 @@
-import React from 'react';
-import { Alert, TouchableOpacity, StyleSheet, Text, View } from 'react-native';
-import Header from '../Components/Header';
-import InputText from '../Components/InputText';
+import React from "react";
+import { Alert, TouchableOpacity, StyleSheet, Text, View } from "react-native";
+import Header from "../Components/Header";
+import InputText from "../Components/InputText";
 import { connect } from "react-redux";
-import ButtonCustom from '../Components/ButtonCustom';
-import PasswordInput from '../Components/PasswordInput'; // Importer le composant PasswordInput
-
+import ButtonCustom from "../Components/ButtonCustom";
+import PasswordInput from "../Components/PasswordInput"; // Importer le composant PasswordInput
 
 class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       email: "",
-      password: ""
+      password: "",
     };
   }
 
   // Fonction d'alerte utilisée pour afficher des messages d'erreur
   alerte() {
     Alert.alert(
-      'Erreur',
-      'Veuillez remplir correctement les champs',
-      [
-        { text: 'OK', onPress: () => console.log('OK Pressed') },
-      ],
-      { cancelable: false },
+      "Erreur",
+      "Veuillez remplir correctement les champs",
+      [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+      { cancelable: false }
     );
   }
 
@@ -39,30 +36,37 @@ class LoginScreen extends React.Component {
     }
 
     // Requête GET pour récupérer les utilisateurs depuis l'API
-    fetch('http://10.31.251.154:8080/users')
-      .then(response => {
+    fetch("http://10.31.251.154:8080/users")
+      .then((response) => {
         // Vérification de la réponse du serveur
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         // Conversion de la réponse en JSON
         return response.json();
       })
-      .then(data => {
+      .then((data) => {
         // Vérification de l'utilisateur dans les données récupérées
-        const foundUser = data.find(user => user.mail === email && user.password === password);
+        const foundUser = data.find(
+          (user) => user.mail === email && user.password === password
+        );
         if (foundUser) {
+          const action = { type: "SET_USER", value: foundUser };
+          this.props.dispatch(action);
           // Redirection vers le tableau de bord avec le nom de l'utilisateur trouvé
-          this.props.navigation.navigate('Dashboard', { username: foundUser.name, isLoggedIn:true });
+          this.props.navigation.navigate("Dashboard", { isLoggedIn: true });
         } else {
           // Affichage d'un message d'erreur si l'utilisateur n'est pas trouvé
-          Alert.alert('Erreur', 'L\'e-mail ou le mot de passe est incorrect');
+          Alert.alert("Erreur", "L'e-mail ou le mot de passe est incorrect");
         }
       })
-      .catch(error => {
+      .catch((error) => {
         // Gestion des erreurs lors de la récupération des utilisateurs
-        console.error('Erreur lors de la récupération des utilisateurs:', error);
-        Alert.alert('Erreur', 'Une erreur est survenue lors de la connexion');
+        console.error(
+          "Erreur lors de la récupération des utilisateurs:",
+          error
+        );
+        Alert.alert("Erreur", "Une erreur est survenue lors de la connexion");
       });
   }
 
@@ -94,16 +98,20 @@ class LoginScreen extends React.Component {
         <View style={styles.view}></View>
 
         {/* Bouton de connexion */}
-        <ButtonCustom onPress={() => this.onLoginPressed()} style={styles.button} title="Connexion" />
+        <ButtonCustom
+          onPress={() => this.onLoginPressed()}
+          style={styles.button}
+          title="Connexion"
+        />
         <View style={styles.row}>
           {/* Bouton pour aller à la page d'inscription */}
-          <TouchableOpacity onPress={() => navigate('Registerscreen')}>
+          <TouchableOpacity onPress={() => navigate("Registerscreen")}>
             <Text style={styles.link}>S'inscrire</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.row}>
           {/* Bouton pour réinitialiser le mot de passe */}
-          <TouchableOpacity onPress={() => navigate('ForgotPasswordscreen')}>
+          <TouchableOpacity onPress={() => navigate("ForgotPasswordscreen")}>
             <Text style={styles.link}>Mot de passe oublié</Text>
           </TouchableOpacity>
         </View>
@@ -117,17 +125,17 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 4,
-    justifyContent: "center"
+    justifyContent: "center",
   },
   link: {
-    fontWeight: 'bold',
-    color: '#600EE6',
+    fontWeight: "bold",
+    color: "#600EE6",
   },
   view: {
-    height: 40
-  }
+    height: 40,
+  },
 });
 
 const mapStateToProps = (state) => {

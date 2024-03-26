@@ -1,15 +1,18 @@
 package Serfa.LPDAOO.VisitMyCities.controller;
 
 import Serfa.LPDAOO.VisitMyCities.DAO.BuildingDAOForMySQL;
+import Serfa.LPDAOO.VisitMyCities.DAO.CityDAOForMySQL;
 import Serfa.LPDAOO.VisitMyCities.DAO.UserDAOForMySQL;
 import Serfa.LPDAOO.VisitMyCities.models.Building;
-import Serfa.LPDAOO.VisitMyCities.models.Photo;
+import Serfa.LPDAOO.VisitMyCities.models.City;
 import Serfa.LPDAOO.VisitMyCities.models.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -18,10 +21,12 @@ public class UserController {
 
     private UserDAOForMySQL users;
     private BuildingDAOForMySQL buildings;
+    private CityDAOForMySQL cities;
 
-    public UserController(UserDAOForMySQL users, BuildingDAOForMySQL buildings) {
+    public UserController(UserDAOForMySQL users, BuildingDAOForMySQL buildings, CityDAOForMySQL cities) {
         this.users = users;
         this.buildings = buildings;
+        this.cities = cities;
     }
 
     @GetMapping("")
@@ -90,6 +95,7 @@ public class UserController {
         return this.users.removeBuildingFromAUser(id, buildingToRemove.get());
     }
 
+    // Liste des bâtiments d'un utilisateur
     @GetMapping("/{id}/buildings")
     public ResponseEntity<List<Building>> getAllBuildingsFromOneUser(@PathVariable long id) {
         Optional<User> userOptional = this.users.findById(id);
@@ -97,5 +103,24 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(this.users.findBuildingsByUserId(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/buildings/city/{city_id}")
+    public ResponseEntity<List<Building>> getAllBuildingsFromOneUserInOneCity(@PathVariable long id, @PathVariable long city_id) {
+        Optional<User> userOptional = this.users.findById(id);
+        if(userOptional.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Optional<City> cityOptional = this.cities.findById(city_id);
+        if(cityOptional.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        List<Building> userBuildingInCity = new ArrayList<>();
+        for(Building building: userOptional.get().getBuildings()) {
+            if(Objects.equals(this.cities.findByBuildings_Id(building.getId()).getId(), cityOptional.get().getId())) {
+                userBuildingInCity.add(building);
+            }
+        }
+        return new ResponseEntity<>(userBuildingInCity, HttpStatus.OK);
     }
 }

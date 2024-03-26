@@ -1,7 +1,5 @@
 package Serfa.LPDAOO.VisitMyCities.controller;
 
-import Serfa.LPDAOO.VisitMyCities.controller.PhotoDTO;
-
 import Serfa.LPDAOO.VisitMyCities.DAO.BuildingDAOForMySQL;
 import Serfa.LPDAOO.VisitMyCities.DAO.PhotoDAOForMySQL;
 import Serfa.LPDAOO.VisitMyCities.models.Building;
@@ -49,9 +47,6 @@ public class PhotoController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         Building building = buildingOptional.get();
-
-        photoDTOFromAPI.setImagePath("C:\\Users\\Togg1\\Desktop\\Mobile\\ProjectTwo\\ImagesBuildingsBDD\\building_photo_" + building_id + ".jpeg");
-
         return this.photos.save(photoDTOFromAPI, building);
     }
 

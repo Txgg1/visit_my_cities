@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     marginBottom: 8,
   },
+  
 });
 
 export { BuildingDetailsText, BuildingDetailsScrollView };

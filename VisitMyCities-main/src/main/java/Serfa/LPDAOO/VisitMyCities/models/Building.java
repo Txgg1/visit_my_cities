@@ -20,6 +20,9 @@ public class Building {
     private String description;
     private double latitude;
     private double longitude;
+    @ManyToOne
+    @JoinColumn(name = "type_id")
+    private Type type;
     @ManyToMany
     @JoinTable(name = "building_architect",
             joinColumns = @JoinColumn( name = "building_id" ),
@@ -32,7 +35,7 @@ public class Building {
     public Building() {
     }
 
-    public Building(Long id, String name, String address, int startBuild, int endBuild, String description, double latitude, double longitude, List<Architect> architects, List<Photo> photos) {
+    public Building(Long id, String name, String address, int startBuild, int endBuild, String description, double latitude, double longitude, Type type, List<Architect> architects, List<Photo> photos) {
         this.id = id;
         this.name = name;
         this.address = address;
@@ -41,6 +44,7 @@ public class Building {
         this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.type = type;
         this.architects = architects;
         this.photos = photos;
     }
@@ -107,6 +111,14 @@ public class Building {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public List<Architect> getArchitects() {

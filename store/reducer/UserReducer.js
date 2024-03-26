@@ -1,18 +1,17 @@
 const initialState = {
-    users: []
+    user: {}, 
 }
 
 function userReducer(state = initialState, action) {
-    let nextState
     switch (action.type) {
-        case 'ADD_USER':
-            nextState = {
+        case 'SET_USER':
+            return {
                 ...state,
-                users: [...state.users, action.value]
-            }
-            return nextState
+                user: action.value
+            };
         default:
-            return state
+            return state;
     }
 }
-export default userReducer
+
+export default userReducer;

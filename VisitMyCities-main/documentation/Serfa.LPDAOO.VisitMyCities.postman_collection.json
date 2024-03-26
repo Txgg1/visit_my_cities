@@ -83,6 +83,14 @@
 					"response": []
 				},
 				{
+					"name": "getAllBuildingsFromOneUserInOneCity(UId, CId)",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
 					"name": "addUser()",
 					"request": {
 						"method": "POST",
@@ -512,6 +520,26 @@
 					"response": []
 				},
 				{
+					"name": "setTypeToOneBuilding(BId, TId)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/buildings/1/typeToSet/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"buildings",
+								"1",
+								"typeToSet",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "addArchitectToOneBuilding(BId, AId)",
 					"request": {
 						"method": "PATCH",
@@ -886,6 +914,117 @@
 							"path": [
 								"photos",
 								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Type",
+			"item": [
+				{
+					"name": "getTypes()",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/types",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"types"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getTypeById(id)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/types/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"types",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addType()",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"label\": \"blabla\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/types",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"types"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteType(id)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/types/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"types",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateType(id)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"label\": \"blibli\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/types/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"types",
+								"2"
 							]
 						}
 					},

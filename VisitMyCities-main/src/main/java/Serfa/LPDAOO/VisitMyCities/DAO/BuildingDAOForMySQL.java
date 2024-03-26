@@ -39,6 +39,9 @@ public interface BuildingDAOForMySQL extends JpaRepository<Building, Long> {
         }
         newBuilding.setLatitude(buildingDTO.latitude());
         newBuilding.setLongitude(buildingDTO.longitude());
+        if(buildingDTO.type() != null) {
+            newBuilding.setType(buildingDTO.type());
+        }
         if(buildingDTO.architects() != null) {
             newBuilding.setArchitects(buildingDTO.architects());
         }
@@ -81,8 +84,13 @@ public interface BuildingDAOForMySQL extends JpaRepository<Building, Long> {
         if(buildingDTOFromAPI.longitude() != 0) {
             buildingToUpdate.get().setLongitude(buildingDTOFromAPI.longitude());
         }
+        if(buildingDTOFromAPI.type() != null) {
+            buildingToUpdate.get().setType(buildingDTOFromAPI.type());
+        }
         if(buildingDTOFromAPI.architect() != null) {
-            buildingToUpdate.get().getArchitects().add(buildingDTOFromAPI.architect());
+            if(!buildingToUpdate.get().getArchitects().contains(buildingDTOFromAPI.architect())) {
+                buildingToUpdate.get().getArchitects().add(buildingDTOFromAPI.architect());
+            }
         }
         if(buildingDTOFromAPI.photo() != null) {
             buildingToUpdate.get().getPhotos().add(buildingDTOFromAPI.photo());
@@ -95,6 +103,9 @@ public interface BuildingDAOForMySQL extends JpaRepository<Building, Long> {
         Optional<Building> buildingToUpdate = findById(id);
         if(buildingToUpdate.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if(buildingToUpdate.get().getArchitects().contains(architectToAdd)) {
+            return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
         }
         buildingToUpdate.get().getArchitects().add(architectToAdd);
         save(buildingToUpdate.get());

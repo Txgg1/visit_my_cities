@@ -3,10 +3,8 @@ package Serfa.LPDAOO.VisitMyCities.controller;
 import Serfa.LPDAOO.VisitMyCities.DAO.ArchitectDAOForMySQL;
 import Serfa.LPDAOO.VisitMyCities.DAO.BuildingDAOForMySQL;
 import Serfa.LPDAOO.VisitMyCities.DAO.PhotoDAOForMySQL;
-import Serfa.LPDAOO.VisitMyCities.models.Architect;
-import Serfa.LPDAOO.VisitMyCities.models.Building;
-import Serfa.LPDAOO.VisitMyCities.models.City;
-import Serfa.LPDAOO.VisitMyCities.models.Photo;
+import Serfa.LPDAOO.VisitMyCities.DAO.TypeDAOForMySQL;
+import Serfa.LPDAOO.VisitMyCities.models.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +17,13 @@ import java.util.Optional;
 public class BuildingController {
 
     private BuildingDAOForMySQL buildings;
+    private TypeDAOForMySQL types;
     private ArchitectDAOForMySQL architects;
     private PhotoDAOForMySQL photos;
 
-    public BuildingController(BuildingDAOForMySQL buildings, ArchitectDAOForMySQL architects, PhotoDAOForMySQL photos) {
+    public BuildingController(BuildingDAOForMySQL buildings, TypeDAOForMySQL types, ArchitectDAOForMySQL architects, PhotoDAOForMySQL photos) {
         this.buildings = buildings;
+        this.types = types;
         this.architects = architects;
         this.photos = photos;
     }
@@ -52,6 +52,25 @@ public class BuildingController {
         return new ResponseEntity<>(this.buildings.findByArchitects_Id(architectOptional.get().getId()), HttpStatus.OK);
     }
 
+
+    @GetMapping("/{id}/architects")
+    public ResponseEntity<List<Architect>> getAllArchitectsFromOneBuilduing(@PathVariable long id) {
+        Optional<Building> buildingOptional = this.buildings.findById(id);
+        if (buildingOptional.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(this.buildings.findArchitectsByBuildingId(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/photos")
+    public ResponseEntity<List<Photo>> getAllPhotosFromOneBuilduing(@PathVariable long id) {
+        Optional<Building> buildingOptional = this.buildings.findById(id);
+        if (buildingOptional.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(this.buildings.findPhotosByBuildingId(id), HttpStatus.OK);
+    }
+
     @PostMapping("")
     public ResponseEntity<Building> addBuilding(@RequestBody BuildingDTO buildingDTOFromAPI) {
         return buildings.save(buildingDTOFromAPI);
@@ -70,6 +89,16 @@ public class BuildingController {
     @PatchMapping("/{id}")
     public ResponseEntity<Building> updateBuilding(@PathVariable long id, @RequestBody BuildingDTO buildingDTOFromAPI) {
         return this.buildings.update(id, buildingDTOFromAPI);
+    }
+
+    @PatchMapping("/{id}/typeToSet/{type_id}")
+    public ResponseEntity<Building> setTypeToOneBuilding(@PathVariable long id, @PathVariable long type_id) {
+        Optional<Type> typeToSet = this.types.findById(type_id);
+        if (typeToSet.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        BuildingDTO buildingDTO = new BuildingDTO(null, null, 0, 0, null, 0, 0, typeToSet.get(), null, null, null, null);
+        return this.buildings.update(id, buildingDTO);
     }
 
     @PatchMapping("/{id}/architectToAdd/{architect_id}")
@@ -99,21 +128,4 @@ public class BuildingController {
         return this.buildings.removeOnePhoto(id, photoToRemove.get());
     }
 
-    @GetMapping("/{id}/architects")
-    public ResponseEntity<List<Architect>> getAllArchitectsFromOneBuilduing(@PathVariable long id) {
-        Optional<Building> buildingOptional = this.buildings.findById(id);
-        if (buildingOptional.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(this.buildings.findArchitectsByBuildingId(id), HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}/photos")
-    public ResponseEntity<List<Photo>> getAllPhotosFromOneBuilduing(@PathVariable long id) {
-        Optional<Building> buildingOptional = this.buildings.findById(id);
-        if (buildingOptional.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(this.buildings.findPhotosByBuildingId(id), HttpStatus.OK);
-    }
 }
