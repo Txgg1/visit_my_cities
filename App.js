@@ -28,14 +28,14 @@ const App = () => {
             name="Homescreen"
             component={HomeScreen}
           />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
-          <Stack.Screen name="Loginscreen" component={LoginScreen} />
-          <Stack.Screen name="Registerscreen" component={RegisterScreen} />
-          <Stack.Screen name="ForgotPasswordscreen" component={ForgotPasswordScreen} />
-          <Stack.Screen name="Dashboard" component={Dashboard} />
+          <Stack.Screen name="Profile" component={ProfileScreen}  options={{ title: 'Profil' }} />
+          <Stack.Screen name="Loginscreen" component={LoginScreen} options={{title: 'Connexion'}} />
+          <Stack.Screen name="Registerscreen" component={RegisterScreen} options={{title: 'Inscription'}} />
+          <Stack.Screen name="ForgotPasswordscreen" component={ForgotPasswordScreen} options={{title: 'Mot de passe'}} />
+          <Stack.Screen name="Dashboard" component={Dashboard} options={{title: 'Dasboard'}} />
           <Stack.Screen name="Camera" component={Camera} />
-          <Stack.Screen name="Localisation" component={Localisation}/>
-          <Stack.Screen name="FavoriteBuildings" component={FavoriteBuildingsScreen} />
+          <Stack.Screen name="Localisation" component={Localisation} options={{title: 'Google Earth'}} />
+          <Stack.Screen name="FavoriteBuildings" component={FavoriteBuildingsScreen} options={{title: 'Batiments favoris'}} />
 
         </Stack.Navigator>
       </NavigationContainer>

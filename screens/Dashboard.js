@@ -24,20 +24,21 @@ class Dashboard extends React.Component {
 
   render() {
     const { navigation, route } = this.props;
+    // console.log(route.params
 
     return (
       <View>
         <Header title="Vous êtes connecté" />
         <Paragraph>
-          Bienvenue {this.props.user.name} sur notre application
+          Bienvenue {(this.props.user.firstname == null) ? this.props.user.mail : this.props.user.firstname} sur notre application
         </Paragraph>
-        {/*<Button*/}
-        {/*    title="Mon Profil"*/}
-        {/*    onPress={() => navigation.navigate('Profile')}*/}
-        {/*/>*/}
-        <Button title="Camera" onPress={() => navigation.navigate("Camera")} />
         <Button
-          title="Geoloc"
+        title="Mon Profil"
+          onPress={() => navigation.navigate('Profile')}
+        />
+        {/* <Button title="Camera" onPress={() => navigation.navigate("Camera")} /> */}
+        <Button
+          title="Carte"
           onPress={() => navigation.navigate("Localisation")}
         />
         <Button

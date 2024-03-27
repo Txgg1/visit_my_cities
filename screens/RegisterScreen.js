@@ -10,11 +10,11 @@ class RegisterScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      firstname: "",
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "", // Ajouter un état pour le mot de passe de confirmation
+      firstname: null,
+      name: null,
+      email: null,
+      password: null,
+      confirmPassword: null, // Ajouter un état pour le mot de passe de confirmation
     };
   }
 
@@ -33,7 +33,7 @@ class RegisterScreen extends React.Component {
     const { name, email, password, confirmPassword } = this.state;
 
     // Vérification que tous les champs sont remplis
-    if (!name || !email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword) {
       this.alerte();
       return;
     }
@@ -78,6 +78,7 @@ class RegisterScreen extends React.Component {
       <View>
         <Header title="Inscription" />
         <InputText
+          placeholder='Prénom'
           label="Prénom"
           returnKeyType="next"
           value={this.state.firstname}
@@ -86,6 +87,7 @@ class RegisterScreen extends React.Component {
         />
         <View style={styles.view}></View>
         <InputText
+          placeholder='Nom'
           label="Nom"
           returnKeyType="next"
           value={this.state.name}
@@ -94,6 +96,7 @@ class RegisterScreen extends React.Component {
         />
         <View style={styles.view}></View>
         <InputText
+          placeholder='E-mail'
           label="E-mail"
           secureTextEntry={false}
           returnKeyType="next"
@@ -102,6 +105,7 @@ class RegisterScreen extends React.Component {
         />
         <View style={styles.view}></View>
         <PasswordInput
+          placeholder='Mot de passe'
           label="Mot de passe"
           returnKeyType="next"
           value={this.state.password}
@@ -109,6 +113,7 @@ class RegisterScreen extends React.Component {
         />
         <View style={styles.view}></View>
         <PasswordInput
+          placeholder='Confirmer le mot de passe'
           label="Confirmer le mot de passe"
           returnKeyType="done"
           value={this.state.confirmPassword}
@@ -139,8 +144,10 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   row: {
+    alignSelf: "center",
+    textAlign : "center",
     flexDirection: "row",
-    marginTop: 4,
+    marginTop: 40,
   },
   link: {
     fontWeight: "bold",

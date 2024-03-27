@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Text, StyleSheet, TouchableOpacity, Alert, TextInput, Button, View } from 'react-native';
 import { Theme } from '../core/theme';
 
-const PasswordInput = ({ label, value, onChangeText }) => {
+const PasswordInput = ({ placeholder,label, value, onChangeText }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -12,6 +12,7 @@ const PasswordInput = ({ label, value, onChangeText }) => {
   return (
     <View>
       <TextInput
+        placeholder={placeholder}
         label={label}
         returnKeyType="done"
         value={value}
@@ -32,6 +33,7 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
     margin: 10,
+    textAlign: 'center',
   },
   toggleButton: {
     alignSelf: 'flex-end',

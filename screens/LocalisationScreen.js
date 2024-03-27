@@ -20,6 +20,7 @@ import {
 } from "../Components/BuildingText";
 import * as ImagePicker from "expo-image-picker"; // Importez le module pour la sélection d'image
 import BuildingTypePicker from "../Components/BuildingTypePicker";
+import local from "../Components/ipconfig";
 
 export default class LocalisationScreen extends Component {
   constructor(props) {
@@ -46,6 +47,8 @@ export default class LocalisationScreen extends Component {
       buildingTypes: [], // Liste des types de bâtiments
       selectedBuildingType: null, // Type de bâtiment sélectionné
       isBuildingTypeModalVisible: false,
+      isCityModalVisible: false,
+      markerCoordinates: null,
     };
     this.onRegionChange = this.onRegionChange.bind(this);
     this.handleRemoveMarker = this.handleRemoveMarker.bind(this); // Binder la méthode handleRemoveMarker
@@ -55,6 +58,7 @@ export default class LocalisationScreen extends Component {
     this.useEffect();
     this.fetchBuildings(); // Appeler la méthode fetchBuildings lorsque le composant est monté
     this.fetchBuildingTypes();
+    this.fetchCities();
   }
 
   async useEffect() {
@@ -83,18 +87,39 @@ export default class LocalisationScreen extends Component {
     }));
   };
 
+  toggleCityModal = () => {
+    this.setState((prevState) => ({
+      isCityModalVisible: !prevState.isCityModalVisible,
+    }));
+  };
+  a;
+
   handleAddMarker = () => {
     if (!this.state.isAddingMarker) {
       this.setState({ isAddingMarker: true }); // Activer le mode d'ajout de marqueur
     }
   };
 
-  handleMapPress = (e) => {
+  handleMapPress = (event) => {
     if (this.state.isAddingMarker) {
-      this.setState({ modalVisible: true });
-      // Stocker temporairement les coordonnées du marqueur pour une utilisation ultérieure
-      this.tempMarkerCoordinate = e.nativeEvent.coordinate;
+      this.setState({
+        markers: [
+          ...this.state.markers,
+          { coordinate: event.nativeEvent.coordinate },
+        ],
+        modalVisible: true,
+      });
     }
+  };
+
+  addMarker = () => {
+    this.setState({
+      isAddingMarker: true,
+      markers: [
+        ...this.state.markers,
+        { coordinate: this.state.markerCoordinates },
+      ],
+    });
   };
 
   handleConfirmMarker = () => {
@@ -133,6 +158,54 @@ export default class LocalisationScreen extends Component {
   closePhotoModal = () => {
     this.setState({ selectedPhoto: null });
   };
+
+  handleAddBuilding = () => {
+    this.setState({ isAddBuildingModalVisible: true });
+  };
+
+  handleSubmit = async () => {
+    const {
+      name,
+      address,
+      description,
+      startBuild,
+      endBuild,
+      type,
+      architects,
+    } = this.state;
+  
+    const newBuilding = {
+      name,
+      address,
+      description,
+      startBuild: parseInt(startBuild), 
+      endBuild: parseInt(endBuild), 
+      type,
+      architects,
+      coordinate: this.tempMarkerCoordinate,
+    };
+  
+    try {
+      const response = await fetch("http://10.31.251.154:8080/buildings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newBuilding),
+      });
+  
+      if (response.ok) {
+        // Le bâtiment a été ajouté avec succès
+        this.setState({ modalVisible: false });
+      } else {
+        // La requête a échoué
+        console.error("Failed to add building");
+      }
+    } catch (error) {
+      console.error("Error adding building:", error);
+    }
+  };
+  
 
   handleAddPhoto = async () => {
     try {
@@ -195,14 +268,27 @@ export default class LocalisationScreen extends Component {
 
   // Ajoutez cette fonction à votre classe LocalisationScreen
   handleResetFilters = () => {
-    this.setState({ selectedBuildingType: null });
+    this.setState({
+      selectedBuildingType: null,
+      selectedCity: null,
+      filteredMarkers: [], // Réinitialiser les marqueurs filtrés
+      region: {
+        // Réinitialiser la région de la carte aux valeurs par défaut
+        latitude: 48.249564,
+        longitude: 7.472165,
+        latitudeDelta: 1.5,
+        longitudeDelta: 1.5,
+      },
+    });
   };
 
   handleTypeSelection = (selectedType) => {
     this.setState({ selectedBuildingType: selectedType });
   };
-  
-  
+
+  handleGoToCityList = () => {
+    this.props.navigation.navigate("CityListScreen");
+  };
 
   renderFilteredBuildings = () => {
     const { buildings, selectedBuildingType } = this.state;
@@ -215,12 +301,13 @@ export default class LocalisationScreen extends Component {
             longitude: building.longitude,
           }}
           title={building.name}
-          onPress={() => this.handleMarkerPress(building)} 
+          onPress={() => this.handleMarkerPress(building)}
         />
       ));
     } else {
       const filteredBuildings = buildings.filter(
-        (building) => building.type && building.type.id === selectedBuildingType.id
+        (building) =>
+          building.type && building.type.id === selectedBuildingType.id
       );
       return filteredBuildings.map((building, index) => (
         <Marker
@@ -230,30 +317,12 @@ export default class LocalisationScreen extends Component {
             longitude: building.longitude,
           }}
           title={building.name}
-          onPress={() => this.handleMarkerPress(building)} 
+          onPress={() => this.handleMarkerPress(building)}
         />
       ));
     }
   };
-  
-  handleValidateBuildingType = () => {
-    const { selectedBuildingType, buildings } = this.state;
 
-    if (selectedBuildingType) {
-      // Filtrer les marqueurs en fonction du type de bâtiment sélectionné
-      const filteredMarkers = buildings.filter(
-        (building) => building.type.id === selectedBuildingType.id
-      );
-
-      // Mettre à jour l'état avec les marqueurs filtrés
-      this.setState({
-        filteredMarkers,
-        showAllMarkers: false, // Si vous avez un état pour afficher tous les marqueurs, mettez-le à false
-      });
-    }
-  };
-  
-  
   renderBuildingTypesList = () => {
     return this.state.buildingTypes.map((type) => (
       <TouchableOpacity
@@ -261,15 +330,15 @@ export default class LocalisationScreen extends Component {
         onPress={() => this.handleTypeSelection(type)}
         style={[
           styles.buildingTypeItem,
-          this.state.selectedBuildingType === type.id && styles.selectedBuildingType,
+          this.state.selectedBuildingType === type.id &&
+            styles.selectedBuildingType,
         ]}
       >
         <Text>{type.name}</Text>
       </TouchableOpacity>
     ));
   };
-  
-  
+
   filterBuildingByType = (building) => {
     const { selectedBuildingType } = this.state;
     if (!selectedBuildingType) {
@@ -277,7 +346,7 @@ export default class LocalisationScreen extends Component {
     }
     return building.type.id === selectedBuildingType.id;
   };
-  
+
   async fetchBuildingTypes() {
     try {
       const response = await fetch("http://10.31.251.154:8080/types");
@@ -291,11 +360,12 @@ export default class LocalisationScreen extends Component {
       alert("An error occurred while retrieving the building types.");
     }
   }
-  
 
   async fetchBuildingsByType(typeId) {
     try {
-      const response = await fetch(`http://10.31.251.154:8080/buildings/type/${typeId}`);
+      const response = await fetch(
+        `http://10.31.251.154:8080/buildings/type/${typeId}`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch buildings by type");
       }
@@ -307,6 +377,63 @@ export default class LocalisationScreen extends Component {
     }
   }
 
+  async fetchCities() {
+    try {
+      const response = await fetch("http://10.31.251.154:8080/cities");
+      if (!response.ok) {
+        throw new Error("Failed to fetch cities");
+      }
+      const cities = await response.json();
+      this.setState({ cities });
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+    }
+  }
+
+  async fetchCityCoordinates(cityId) {
+    try {
+      const response = await fetch(
+        `http://10.31.251.154:8080/cities/${cityId}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch city coordinates");
+      }
+      const city = await response.json();
+      return city;
+    } catch (error) {
+      console.error("Error fetching city coordinates:", error);
+      throw error;
+    }
+  }
+
+  handleCitySelection = async (city) => {
+    try {
+      const selectedCity = await this.fetchCityCoordinates(city.id);
+      this.setState({
+        selectedCity: selectedCity,
+        region: {
+          latitude: selectedCity.latitude,
+          longitude: selectedCity.longitude,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1,
+        },
+      });
+      this.toggleCityModal(); // Ajoutez cette ligne pour fermer le modal
+    } catch (error) {
+      console.error("Error handling city selection:", error);
+    }
+  };
+
+  renderCityList() {
+    return this.state.cities.map((city) => (
+      <TouchableOpacity
+        key={city.id}
+        onPress={() => this.handleCitySelection(city)}
+      >
+        <Text>{city.name}</Text>
+      </TouchableOpacity>
+    ));
+  }
 
   async fetchBuildings() {
     try {
@@ -367,9 +494,10 @@ export default class LocalisationScreen extends Component {
     } = this.state;
 
     const filteredBuildings = selectedBuildingType
-      ? buildings.filter((building) => building.type.id === selectedBuildingType.id)
+      ? buildings.filter(
+          (building) => building.type.id === selectedBuildingType.id
+        )
       : buildings;
-
 
     return (
       <View style={styles.container}>
@@ -401,7 +529,32 @@ export default class LocalisationScreen extends Component {
                   </TouchableOpacity>
                 )}
               />
-              <Button title="Valider" onPress={this.handleValidateBuildingType} />
+            </View>
+          </View>
+        </Modal>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.isCityModalVisible}
+          onRequestClose={this.toggleCityModal}
+        >
+          <View style={styles.modalContainerType}>
+            <View style={styles.modalContentType}>
+              {/* Contenu du modal, par exemple une FlatList pour afficher la liste des villes */}
+              <FlatList
+                data={this.state.cities}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    onPress={() => this.handleCitySelection(item)}
+                  >
+                    <Text style={styles.menuItem}>{item.name}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+              {/* {console.log(this.state.cities)} */}
+              {/* Bouton pour fermer le modal */}
+              <Button title="Fermer" onPress={this.toggleCityModal} />
             </View>
           </View>
         </Modal>
@@ -416,15 +569,50 @@ export default class LocalisationScreen extends Component {
           }}
         >
           <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text>Nom du marqueur :</Text>
-              <TextInput
-                style={styles.input}
-                value={this.state.markerName}
-                onChangeText={(text) => this.setState({ markerName: text })}
-              />
-              <Button title="Confirmer" onPress={this.handleConfirmMarker} />
-            </View>
+            <Text style={styles.modalTitle}>Ajouter un bâtiment</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nom"
+              value={this.state.name}
+              onChangeText={(text) => this.setState({ name: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Adresse"
+              value={this.state.address}
+              onChangeText={(text) => this.setState({ address: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Description"
+              value={this.state.description}
+              onChangeText={(text) => this.setState({ description: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Date de début de construction"
+              value={this.state.startBuild}
+              onChangeText={(text) => this.setState({ startBuild: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Date de fin de construction"
+              value={this.state.endBuild}
+              onChangeText={(text) => this.setState({ endBuild: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Type de bâtiment"
+              value={this.state.type}
+              onChangeText={(text) => this.setState({ type: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Architectes"
+              value={this.state.architects}
+              onChangeText={(text) => this.setState({ architects: text })}
+            />
+            <Button title="Ajouter" onPress={this.handleSubmit} />
           </View>
         </Modal>
 
@@ -440,18 +628,23 @@ export default class LocalisationScreen extends Component {
         {this.state.showMenu && (
           <View style={styles.menu}>
             {/* Bouton pour ajouter un marqueur */}
-            <TouchableOpacity onPress={this.handleAddMarker}>
-              <Text style={styles.menuItem}>Ajouter</Text>
+            <TouchableOpacity onPress={this.addMarker}>
+              <Text style={styles.menuItem}>Ajouter un marqueur</Text>
             </TouchableOpacity>
+
             <TouchableOpacity onPress={this.toggleBuildingTypeModal}>
               <Text style={styles.menuItem}>
                 Sélectionner un type de bâtiment
               </Text>
             </TouchableOpacity>
+
+            {/* <ScrollView>{this.renderBuildingTypesList()}</ScrollView> */}
+            <TouchableOpacity onPress={this.toggleCityModal}>
+              <Text style={styles.menuItem}>Liste des villes</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={this.handleResetFilters}>
               <Text style={styles.menuItem}>Réinitialiser les filtres</Text>
             </TouchableOpacity>
-            {/* <ScrollView>{this.renderBuildingTypesList()}</ScrollView> */}
           </View>
         )}
 
@@ -574,9 +767,8 @@ export default class LocalisationScreen extends Component {
               <Text style={styles.closeButtonText}>Fermer</Text>
             </TouchableOpacity>
           </View>
-        </Modal>        
+        </Modal>
       </View>
-      
     );
   }
 }
@@ -630,7 +822,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(5, 0, 0, 0.5)",
-    height: "max-content"
+    height: "max-content",
   },
   modalContent: {
     backgroundColor: "white",
@@ -706,5 +898,16 @@ const styles = StyleSheet.create({
   buildingTypeButtonText: {
     color: "#000",
   },
-  
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  input: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
 });

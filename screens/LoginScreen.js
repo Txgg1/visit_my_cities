@@ -79,6 +79,7 @@ class LoginScreen extends React.Component {
 
         {/* Champ de saisie pour l'e-mail */}
         <InputText
+          placeholder="E-mail"
           value={this.state.email}
           onChangeText={(text) => this.setState({ email: text })}
           label="Email"
@@ -89,6 +90,7 @@ class LoginScreen extends React.Component {
 
         {/* Champ de saisie pour le mot de passe */}
         <PasswordInput
+          placeholder="Mot de passe"
           label="Password"
           returnKeyType="done"
           value={this.state.password}

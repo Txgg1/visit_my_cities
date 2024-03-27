@@ -1,6 +1,7 @@
 -Ajouter/éditer des bâtiments
--filtrer les bâtiments (ville, type)
--Mettre en place les favoris
+++-filtrer les bâtiments (ville, type)
+++-Mettre en place les favoris
 -Ajouter un parcours par rapport à la liste de favoris
--Sélecteur de ville
+++-Sélecteur de ville
 -Prendre en charge la prise de photo par l'utilisateur
+- un const pour l'adresse de l'api
