@@ -12,6 +12,7 @@ import {
   ScrollView,
   Dimensions,
 } from "react-native";
+import {Picker} from "@react-native-picker/picker";
 import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
 import {
@@ -102,6 +103,7 @@ export default class LocalisationScreen extends Component {
 
   handleMapPress = (event) => {
     if (this.state.isAddingMarker) {
+      this.tempMarkerCoordinate = event.nativeEvent.coordinate;
       this.setState({
         markers: [
           ...this.state.markers,
@@ -163,6 +165,7 @@ export default class LocalisationScreen extends Component {
     this.setState({ isAddBuildingModalVisible: true });
   };
 
+
   handleSubmit = async () => {
     const {
       name,
@@ -171,20 +174,25 @@ export default class LocalisationScreen extends Component {
       startBuild,
       endBuild,
       type,
-      architects,
     } = this.state;
-  
+
+
+
+
     const newBuilding = {
       name,
       address,
       description,
-      startBuild: parseInt(startBuild), 
-      endBuild: parseInt(endBuild), 
-      type,
-      architects,
-      coordinate: this.tempMarkerCoordinate,
+      startBuild: parseInt(startBuild),
+      endBuild: parseInt(endBuild),
+      latitude: this.tempMarkerCoordinate.latitude,
+      longitude: this.tempMarkerCoordinate.longitude,
+      type: {
+        id: this.state.selectedBuildingType,
+      }
     };
-  
+
+
     try {
       const response = await fetch("http://10.31.251.154:8080/buildings", {
         method: "POST",
@@ -193,19 +201,20 @@ export default class LocalisationScreen extends Component {
         },
         body: JSON.stringify(newBuilding),
       });
-  
       if (response.ok) {
         // Le bâtiment a été ajouté avec succès
         this.setState({ modalVisible: false });
       } else {
         // La requête a échoué
         console.error("Failed to add building");
+        throw new Error("Failed to add building");
       }
     } catch (error) {
       console.error("Error adding building:", error);
     }
   };
-  
+
+
 
   handleAddPhoto = async () => {
     try {
@@ -284,13 +293,14 @@ export default class LocalisationScreen extends Component {
 
   handleTypeSelection = (selectedType) => {
     this.setState({ selectedBuildingType: selectedType });
+    this.setState({selectedType});
   };
 
   handleGoToCityList = () => {
     this.props.navigation.navigate("CityListScreen");
   };
 
-  renderFilteredBuildings = () => {
+  renderFilteredBuildings() {
     const { buildings, selectedBuildingType } = this.state;
     if (!selectedBuildingType) {
       return buildings.map((building, index) => (
@@ -304,10 +314,9 @@ export default class LocalisationScreen extends Component {
           onPress={() => this.handleMarkerPress(building)}
         />
       ));
-    } else {
+    } else if (selectedBuildingType && selectedBuildingType.id) {
       const filteredBuildings = buildings.filter(
-        (building) =>
-          building.type && building.type.id === selectedBuildingType.id
+        (building) => building.type && building.type.id === selectedBuildingType.id
       );
       return filteredBuildings.map((building, index) => (
         <Marker
@@ -321,7 +330,8 @@ export default class LocalisationScreen extends Component {
         />
       ));
     }
-  };
+  }
+  
 
   renderBuildingTypesList = () => {
     return this.state.buildingTypes.map((type) => (
@@ -529,6 +539,7 @@ export default class LocalisationScreen extends Component {
                   </TouchableOpacity>
                 )}
               />
+
             </View>
           </View>
         </Modal>
@@ -600,18 +611,39 @@ export default class LocalisationScreen extends Component {
               value={this.state.endBuild}
               onChangeText={(text) => this.setState({ endBuild: text })}
             />
-            <TextInput
-              style={styles.input}
-              placeholder="Type de bâtiment"
-              value={this.state.type}
-              onChangeText={(text) => this.setState({ type: text })}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Architectes"
-              value={this.state.architects}
-              onChangeText={(text) => this.setState({ architects: text })}
-            />
+
+            <Picker
+                selectedValue={this.state.selectedBuildingType}
+                style={styles.picker}
+                onValueChange={(itemValue, itemIndex) =>
+                    this.setState({ selectedBuildingType: itemValue })
+                }
+            >
+              <Picker.Item label="Sélectionner un type" value="" />
+              {this.state.buildingTypes && this.state.buildingTypes.map((type) => (
+                  type && type.id &&
+                  <Picker.Item
+                      label={type.id + " - " + type.label}
+                      value={type.id}
+                      key={type.id}
+                  />
+              ))}
+            </Picker>
+
+
+
+            {/*<TextInput*/}
+            {/*  style={styles.input}*/}
+            {/*  placeholder="Type de bâtiment"*/}
+            {/*  value={this.state.type}*/}
+            {/*  onChangeText={(text) => this.setState({ type: text })}*/}
+            {/*/>*/}
+            {/*<TextInput*/}
+            {/*  style={styles.input}*/}
+            {/*  placeholder="Architectes"*/}
+            {/*  value={this.state.architects}*/}
+            {/*  onChangeText={(text) => this.setState({ architects: text })}*/}
+            {/*/>*/}
             <Button title="Ajouter" onPress={this.handleSubmit} />
           </View>
         </Modal>
@@ -680,27 +712,27 @@ export default class LocalisationScreen extends Component {
               {/* {console.log(this.state.selectedMarker?.id)} */}
 
               <BuildingDetailsText
-                label="Nom du bâtiment"
-                value={this.state.selectedMarker?.name}
+                title="Nom du bâtiment"
+                value={this.state.selectedMarker?.name ? this.state.selectedMarker?.name : "Pas de nom"}
               />
               <BuildingDetailsText
-                label="Adresse"
-                value={this.state.selectedMarker?.address}
+                title="Adresse"
+                value={this.state.selectedMarker?.address ? this.state.selectedMarker?.address : "Pas d'adresse"}
               />
               <BuildingDetailsScrollView
-                label="Description"
-                value={this.state.selectedMarker?.description}
+                title="Description"
+                value={this.state.selectedMarker?.description ? this.state.selectedMarker?.description : "Pas de description"}
               />
               <BuildingDetailsText
-                label="Date de début de construction"
-                value={this.state.selectedMarker?.startBuild}
+                title="Date de début de construction"
+                value={this.state.selectedMarker?.startBuild ? this.state.selectedMarker?.startBuild : "Pas de date de début de construction"}
               />
               <BuildingDetailsText
-                label="Date de fin de construction"
-                value={this.state.selectedMarker?.endBuild}
+                title="Date de fin de construction"
+                value={this.state.selectedMarker?.endBuild ? this.state.selectedMarker?.endBuild : "Pas de date de fin de construction"}
               />
-              <BuildingDetailsText label="Architectes" />
-              <FlatList
+              <BuildingDetailsText title="Architectes" />
+              {/* <FlatList
                 data={this.state.buildingArchitect}
                 renderItem={({ item }) => (
                   <Text>
@@ -708,22 +740,22 @@ export default class LocalisationScreen extends Component {
                   </Text>
                 )}
                 keyExtractor={(item, index) => index.toString()}
-              />
+              /> */}
               <BuildingDetailsText
-                label="Type"
-                value={this.state.selectedMarker?.type.label}
+                title="Type"
+                value={this.state.selectedMarker?.type.label ? this.state.selectedMarker?.type.label : "Pas de type"}
               />
               {/* <BuildingDetailsText label="Architecte" value={this.state.selectedMarker?.architect.name} /> */}
               <BuildingDetailsText
-                label="Latitude"
+                title="Latitude"
                 value={this.state.selectedMarker?.latitude}
               />
 
               <BuildingDetailsText
-                label="Longitude"
+                title="Longitude"
                 value={this.state.selectedMarker?.longitude}
               />
-              <FlatList
+              {/* <FlatList
                 style={styles.photosList}
                 data={this.state.buildingPhotos}
                 renderItem={({ item }) => (
@@ -733,7 +765,7 @@ export default class LocalisationScreen extends Component {
                 )}
                 keyExtractor={(item, index) => index.toString()}
                 numColumns={3}
-              />
+              /> */}
               <TouchableOpacity onPress={this.handleAddPhoto}>
                 <Text>Ajouter une photo</Text>
               </TouchableOpacity>
@@ -903,11 +935,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
   },
-  input: {
+  picker: {
     height: 40,
+    width: 80,
     borderColor: "gray",
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
-  },
+    backgroundColor: "#fff",
+  }
+
 });

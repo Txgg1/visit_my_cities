@@ -1,25 +1,25 @@
 import React from 'react';
 import { Text, ScrollView, StyleSheet } from 'react-native';
 
-const BuildingDetailsText = ({ label, value }) => {
+const BuildingDetailsText = ({ title, value }) => {
   return (
-    <Text style={styles.label}>
-      <Text style={styles.bold}>{label}: </Text>
+    <Text style={styles.title}>
+      <Text style={styles.bold}>{title}: </Text>
       {value}
     </Text>
   );
 };
 
-const BuildingDetailsScrollView = ({ label, value }) => {
+const BuildingDetailsScrollView = ({ title, value }) => {
   return (
     <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={true}>
-      <BuildingDetailsText label={label} value={value} />
+      <BuildingDetailsText title={title} value={value} />
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  label: {
+  title: {
     marginBottom: 8,
     fontSize: 16,
   },

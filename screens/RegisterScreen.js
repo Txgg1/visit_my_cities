@@ -6,6 +6,7 @@ import InputText from "../Components/InputText";
 import ButtonCustom from "../Components/ButtonCustom";
 import PasswordInput from "../Components/PasswordInput";
 
+
 class RegisterScreen extends React.Component {
   constructor(props) {
     super(props);
