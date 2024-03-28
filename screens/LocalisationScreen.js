@@ -539,6 +539,7 @@ export default class LocalisationScreen extends Component {
                   </TouchableOpacity>
                 )}
               />
+                            <Button title="Fermer" onPress={this.toggleBuildingTypeModal} />
 
             </View>
           </View>
@@ -732,7 +733,7 @@ export default class LocalisationScreen extends Component {
                 value={this.state.selectedMarker?.endBuild ? this.state.selectedMarker?.endBuild : "Pas de date de fin de construction"}
               />
               <BuildingDetailsText title="Architectes" />
-              {/* <FlatList
+              <FlatList
                 data={this.state.buildingArchitect}
                 renderItem={({ item }) => (
                   <Text>
@@ -740,12 +741,11 @@ export default class LocalisationScreen extends Component {
                   </Text>
                 )}
                 keyExtractor={(item, index) => index.toString()}
-              /> */}
+              />
               <BuildingDetailsText
                 title="Type"
                 value={this.state.selectedMarker?.type.label ? this.state.selectedMarker?.type.label : "Pas de type"}
               />
-              {/* <BuildingDetailsText label="Architecte" value={this.state.selectedMarker?.architect.name} /> */}
               <BuildingDetailsText
                 title="Latitude"
                 value={this.state.selectedMarker?.latitude}
@@ -755,7 +755,7 @@ export default class LocalisationScreen extends Component {
                 title="Longitude"
                 value={this.state.selectedMarker?.longitude}
               />
-              {/* <FlatList
+              <FlatList
                 style={styles.photosList}
                 data={this.state.buildingPhotos}
                 renderItem={({ item }) => (
@@ -765,7 +765,7 @@ export default class LocalisationScreen extends Component {
                 )}
                 keyExtractor={(item, index) => index.toString()}
                 numColumns={3}
-              /> */}
+              />
               <TouchableOpacity onPress={this.handleAddPhoto}>
                 <Text>Ajouter une photo</Text>
               </TouchableOpacity>
@@ -865,14 +865,13 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "space-between",
   },
-  // modalContentType: {
-  //   padding: 20,
-  //   borderRadius: 10,
-  //   elevation: 5,
-  //   height: "20%",
-  //   width: "100%",
-  //   justifyContent: "space-between",
-  // },
+  modalContentType: {
+    marginTop: "50%",
+    padding: 20,
+    borderRadius: 10,
+    justifyContent: "space-between",
+    alignContent : "center",
+  },
   modalContentImage: {
     backgroundColor: "white",
     borderRadius: 10,
