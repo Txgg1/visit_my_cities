@@ -11,8 +11,9 @@ import {
   Image,
   ScrollView,
   Dimensions,
+  Alert
 } from "react-native";
-import {Picker} from "@react-native-picker/picker";
+import { Picker } from "@react-native-picker/picker";
 import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
 import {
@@ -50,6 +51,15 @@ export default class LocalisationScreen extends Component {
       isBuildingTypeModalVisible: false,
       isCityModalVisible: false,
       markerCoordinates: null,
+      editingBuilding: null,
+      isEditingModalVisible: false,
+      form: {
+        newName: "",
+        newAddress: "",
+        newStartBuild: "",
+        newEndBuild: "",
+        newDescription: "",
+      },
     };
     this.onRegionChange = this.onRegionChange.bind(this);
     this.handleRemoveMarker = this.handleRemoveMarker.bind(this); // Binder la méthode handleRemoveMarker
@@ -81,6 +91,20 @@ export default class LocalisationScreen extends Component {
       },
     });
   }
+
+  openEditingModal = (building) => {
+    this.setState({
+      editingBuilding: building,
+      isEditingModalVisible: true,
+    });
+  };
+
+  closeEditingModal = () => {
+    this.setState({
+      editingBuilding: null,
+      isEditingModalVisible: false,
+    });
+  };
 
   toggleBuildingTypeModal = () => {
     this.setState((prevState) => ({
@@ -165,19 +189,9 @@ export default class LocalisationScreen extends Component {
     this.setState({ isAddBuildingModalVisible: true });
   };
 
-
   handleSubmit = async () => {
-    const {
-      name,
-      address,
-      description,
-      startBuild,
-      endBuild,
-      type,
-    } = this.state;
-
-
-
+    const { name, address, description, startBuild, endBuild, type } =
+      this.state;
 
     const newBuilding = {
       name,
@@ -189,9 +203,8 @@ export default class LocalisationScreen extends Component {
       longitude: this.tempMarkerCoordinate.longitude,
       type: {
         id: this.state.selectedBuildingType,
-      }
+      },
     };
-
 
     try {
       const response = await fetch("http://10.31.251.154:8080/buildings", {
@@ -213,8 +226,6 @@ export default class LocalisationScreen extends Component {
       console.error("Error adding building:", error);
     }
   };
-
-
 
   handleAddPhoto = async () => {
     try {
@@ -293,7 +304,7 @@ export default class LocalisationScreen extends Component {
 
   handleTypeSelection = (selectedType) => {
     this.setState({ selectedBuildingType: selectedType });
-    this.setState({selectedType});
+    this.setState({ selectedType });
   };
 
   handleGoToCityList = () => {
@@ -316,7 +327,8 @@ export default class LocalisationScreen extends Component {
       ));
     } else if (selectedBuildingType && selectedBuildingType.id) {
       const filteredBuildings = buildings.filter(
-        (building) => building.type && building.type.id === selectedBuildingType.id
+        (building) =>
+          building.type && building.type.id === selectedBuildingType.id
       );
       return filteredBuildings.map((building, index) => (
         <Marker
@@ -331,7 +343,6 @@ export default class LocalisationScreen extends Component {
       ));
     }
   }
-  
 
   renderBuildingTypesList = () => {
     return this.state.buildingTypes.map((type) => (
@@ -473,6 +484,42 @@ export default class LocalisationScreen extends Component {
       throw error;
     }
   }
+  handleEditButtonPress = (building) => {
+    this.setState({
+      editingBuilding: building,
+    });
+  };
+
+  updateBuilding = () => {
+    const { form, editingBuilding } = this.state;
+    const updatedBuilding = {
+      id: editingBuilding.id,
+      name: form.newName || editingBuilding.name,
+      address: form.newAddress || editingBuilding.address,
+      startBuild: form.newStartBuild || editingBuilding.startBuild,
+      endBuild: form.newEndBuild || editingBuilding.endBuild,
+      description: form.newDescription || editingBuilding.description,
+    };
+
+    fetch(`http://10.31.251.154:8080/buildings/${editingBuilding.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedBuilding),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        this.setState({
+          building: updatedBuilding,
+          modalVisible: false,
+        });
+        Alert.alert('Succès', 'Les modifications ont été enregistrées avec succès.');
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   async fetchArchitects(building_id) {
     try {
@@ -539,8 +586,7 @@ export default class LocalisationScreen extends Component {
                   </TouchableOpacity>
                 )}
               />
-                            <Button title="Fermer" onPress={this.toggleBuildingTypeModal} />
-
+              <Button title="Fermer" onPress={this.toggleBuildingTypeModal} />
             </View>
           </View>
         </Modal>
@@ -614,24 +660,26 @@ export default class LocalisationScreen extends Component {
             />
 
             <Picker
-                selectedValue={this.state.selectedBuildingType}
-                style={styles.picker}
-                onValueChange={(itemValue, itemIndex) =>
-                    this.setState({ selectedBuildingType: itemValue })
-                }
+              selectedValue={this.state.selectedBuildingType}
+              style={styles.picker}
+              onValueChange={(itemValue, itemIndex) =>
+                this.setState({ selectedBuildingType: itemValue })
+              }
             >
               <Picker.Item label="Sélectionner un type" value="" />
-              {this.state.buildingTypes && this.state.buildingTypes.map((type) => (
-                  type && type.id &&
-                  <Picker.Item
-                      label={type.id + " - " + type.label}
-                      value={type.id}
-                      key={type.id}
-                  />
-              ))}
+              {this.state.buildingTypes &&
+                this.state.buildingTypes.map(
+                  (type) =>
+                    type &&
+                    type.id && (
+                      <Picker.Item
+                        label={type.id + " - " + type.label}
+                        value={type.id}
+                        key={type.id}
+                      />
+                    )
+                )}
             </Picker>
-
-
 
             {/*<TextInput*/}
             {/*  style={styles.input}*/}
@@ -714,23 +762,43 @@ export default class LocalisationScreen extends Component {
 
               <BuildingDetailsText
                 title="Nom du bâtiment"
-                value={this.state.selectedMarker?.name ? this.state.selectedMarker?.name : "Pas de nom"}
+                value={
+                  this.state.selectedMarker?.name
+                    ? this.state.selectedMarker?.name
+                    : "Pas de nom"
+                }
               />
               <BuildingDetailsText
                 title="Adresse"
-                value={this.state.selectedMarker?.address ? this.state.selectedMarker?.address : "Pas d'adresse"}
+                value={
+                  this.state.selectedMarker?.address
+                    ? this.state.selectedMarker?.address
+                    : "Pas d'adresse"
+                }
               />
               <BuildingDetailsScrollView
                 title="Description"
-                value={this.state.selectedMarker?.description ? this.state.selectedMarker?.description : "Pas de description"}
+                value={
+                  this.state.selectedMarker?.description
+                    ? this.state.selectedMarker?.description
+                    : "Pas de description"
+                }
               />
               <BuildingDetailsText
                 title="Date de début de construction"
-                value={this.state.selectedMarker?.startBuild ? this.state.selectedMarker?.startBuild : "Pas de date de début de construction"}
+                value={
+                  this.state.selectedMarker?.startBuild
+                    ? this.state.selectedMarker?.startBuild
+                    : "Pas de date de début de construction"
+                }
               />
               <BuildingDetailsText
                 title="Date de fin de construction"
-                value={this.state.selectedMarker?.endBuild ? this.state.selectedMarker?.endBuild : "Pas de date de fin de construction"}
+                value={
+                  this.state.selectedMarker?.endBuild
+                    ? this.state.selectedMarker?.endBuild
+                    : "Pas de date de fin de construction"
+                }
               />
               <BuildingDetailsText title="Architectes" />
               <FlatList
@@ -744,7 +812,11 @@ export default class LocalisationScreen extends Component {
               />
               <BuildingDetailsText
                 title="Type"
-                value={this.state.selectedMarker?.type.label ? this.state.selectedMarker?.type.label : "Pas de type"}
+                value={
+                  this.state.selectedMarker?.type.label
+                    ? this.state.selectedMarker?.type.label
+                    : "Pas de type"
+                }
               />
               <BuildingDetailsText
                 title="Latitude"
@@ -766,6 +838,12 @@ export default class LocalisationScreen extends Component {
                 keyExtractor={(item, index) => index.toString()}
                 numColumns={3}
               />
+              <TouchableOpacity
+                onPress={() => this.openEditingModal(this.state.selectedMarker)}
+              >
+                <Text>Modifier</Text>
+              </TouchableOpacity>
+
               <TouchableOpacity onPress={this.handleAddPhoto}>
                 <Text>Ajouter une photo</Text>
               </TouchableOpacity>
@@ -779,6 +857,76 @@ export default class LocalisationScreen extends Component {
             </View>
           </View>
         </Modal>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.isEditingModalVisible}
+          onRequestClose={this.closeEditingModal}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>
+                Modifier les détails du building
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder={this.state.editingBuilding?.name}
+                value={this.state.form.newName}
+                onChangeText={(text) =>
+                  this.setState({ form: { ...this.state.form, newName: text } })
+                }
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder={this.state.editingBuilding?.address}
+                value={this.state.form.newAddress}
+                onChangeText={(text) =>
+                  this.setState({
+                    form: { ...this.state.form, newAddress: text },
+                  })
+                }
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder={this.state.editingBuilding?.description}
+                value={this.state.form.newDescription}
+                onChangeText={(text) =>
+                  this.setState({
+                    form: { ...this.state.form, newDescription: text },
+                  })
+                }
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Date de début de construction"
+                value={this.state.form.newStartBuild}
+                onChangeText={(text) =>
+                  this.setState({
+                    form: { ...this.state.form, newStartBuild: text },
+                  })
+                }
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Date de fin de construction"
+                value={this.state.form.newEndBuild}
+                onChangeText={(text) =>
+                  this.setState({
+                    form: { ...this.state.form, newEndBuild: text },
+                  })
+                }
+              />
+
+              <Button title="Enregistrer" onPress={this.updateBuilding} />
+              <Button title="Fermer" onPress={this.closeEditingModal} />
+            </View>
+          </View>
+        </Modal>
+
         <Modal
           animationType="slide"
           transparent={true}
@@ -870,7 +1018,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     justifyContent: "space-between",
-    alignContent : "center",
+    alignContent: "center",
   },
   modalContentImage: {
     backgroundColor: "white",
@@ -942,6 +1090,5 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
     backgroundColor: "#fff",
-  }
-
+  },
 });
