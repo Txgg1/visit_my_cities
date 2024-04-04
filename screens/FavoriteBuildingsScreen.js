@@ -15,6 +15,8 @@ import {
   BuildingDetailsText,
   BuildingDetailsScrollView,
 } from "../Components/BuildingText";
+import local from "../Components/ipconfig";
+
 
 class FavoriteBuildingsScreen extends Component {
   constructor(props) {
@@ -23,8 +25,8 @@ class FavoriteBuildingsScreen extends Component {
       favoriteBuildings: [],
       selectedBuilding: null,
       modalVisible: false,
-      buildingPhotos: [], // Ajout d'un état pour stocker les photos du bâtiment
-      buildingArchitect: [], // Ajout d'un état pour stocker les architectes du bâtiment
+      buildingPhotos: [],
+      buildingArchitect: [],
     };
   }
 
@@ -35,15 +37,15 @@ class FavoriteBuildingsScreen extends Component {
   async fetchArchitects(building_id) {
     try {
       const response = await fetch(
-        `http://10.31.251.154:8080/buildings/${building_id}/architects`
+        local + `/buildings/${building_id}/architects`
       );
       if (!response.ok) {
-        throw new Error("Failed to fetch architects");
+        throw new Error("Échec de la récupération des architectes");
       }
       const architects = await response.json();
       return architects;
     } catch (error) {
-      console.error("Error fetching architects:", error);
+      console.error("Erreur lors de la récupération des architectes:", error);
       throw error;
     }
   }
@@ -51,15 +53,15 @@ class FavoriteBuildingsScreen extends Component {
   async fetchBuildingPhotos(buildingId) {
     try {
       const response = await fetch(
-        `http://10.31.251.154:8080/buildings/${buildingId}/photos`
+        local+`/buildings/${buildingId}/photos`
       );
       if (!response.ok) {
-        throw new Error("Failed to fetch building photos");
+        throw new Error("Échec de la récupération des photos du bâtiment");
       }
       const photos = await response.json();
       return photos;
     } catch (error) {
-      console.error("Error fetching building photos:", error);
+      console.error("Erreur lors de la récupération des photos du bâtiment:", error);
       throw error;
     }
   }
@@ -68,15 +70,15 @@ class FavoriteBuildingsScreen extends Component {
     const userId = this.props.user.id;
     try {
       const response = await fetch(
-        `http://10.31.251.154:8080/users/${userId}/buildings`
+        local+`/users/${userId}/buildings`
       );
       if (!response.ok) {
-        throw new Error("Failed to fetch favorite buildings");
+        throw new Error("Échec de la récupération des bâtiments favoris");
       }
       const data = await response.json();
       this.setState({ favoriteBuildings: data });
     } catch (error) {
-      console.error("Error fetching favorite buildings:", error);
+      console.error("Erreur lors de la récupération des bâtiments favoris:", error);
     }
   };
 
@@ -84,22 +86,21 @@ class FavoriteBuildingsScreen extends Component {
     const userId = this.props.user.id;
     try {
       const response = await fetch(
-        `http://10.31.251.154:8080/users/${userId}/buildingToRemove/${buildingId}`,
+        local +`/users/${userId}/buildingToRemove/${buildingId}`,
         {
           method: "PATCH",
         }
       );
       if (!response.ok) {
-        throw new Error("Failed to remove building from favorites");
+        throw new Error("Échec de la suppression du bâtiment des favoris");
       }
-      // Mettre à jour la liste des bâtiments favoris après la suppression
       this.setState((prevState) => ({
         favoriteBuildings: prevState.favoriteBuildings.filter(
           (building) => building.id !== buildingId
         ),
       }));
     } catch (error) {
-      console.error("Error removing building from favorites:", error);
+      console.error("Erreur lors de la suppression du bâtiment des favoris:", error);
     }
   };
 
@@ -107,12 +108,12 @@ class FavoriteBuildingsScreen extends Component {
     // Ajout de "async" ici
     this.setState({ selectedBuilding: building, modalVisible: true });
     try {
-      const photos = await this.fetchBuildingPhotos(building.id); // Utilisation de "building.id"
+      const photos = await this.fetchBuildingPhotos(building.id); 
       this.setState({ buildingPhotos: photos });
-      const architects = await this.fetchArchitects(building.id); // Utilisation de "building.id"
+      const architects = await this.fetchArchitects(building.id); 
       this.setState({ buildingArchitect: architects });
     } catch (error) {
-      console.error("Error fetching building photos:", error);
+      console.error("Erreur lors de la récupération des photos du bâtiment:", error);
     }
   };
 
@@ -224,7 +225,6 @@ class FavoriteBuildingsScreen extends Component {
           visible={!!this.state.selectedPhoto}
           onRequestClose={() => this.setState({ selectedPhoto: null })}
         >
-          {/* Contenu du modal pour afficher la photo sélectionnée */}
           <View style={styles.modalContentImage}>
             <Image
               source={{ uri: this.state.selectedPhoto?.url }}

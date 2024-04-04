@@ -12,6 +12,8 @@ import { emailValidator, passwordValidator } from "../core/utils";
 import Header from "../Components/Header";
 import { Theme } from "../core/theme";
 import PasswordInput from "../Components/PasswordInput"; // Importer le composant PasswordInput
+import local from "../Components/ipconfig";
+
 
 export default class ForgotPasswordScreen extends React.Component {
   constructor(props) {
@@ -50,7 +52,7 @@ export default class ForgotPasswordScreen extends React.Component {
       password: newPassword,
     };
 
-    fetch(`http://192.168.56.1:8080/users/mail/${email}`, {
+    fetch( local +`/users/mail/${email}`, {
       method: "GET",
     })
       .then((response) => response.json())
@@ -58,7 +60,7 @@ export default class ForgotPasswordScreen extends React.Component {
         if (!user) {
           Alert.alert("Erreur", "L'e-mail saisi n'existe pas");
         } else {
-          fetch(`http://192.168.56.1:8080/users/${user.id}`, {
+          fetch(local + `/users/${user.id}`, {
             method: "PATCH",
             body: JSON.stringify(data),
             headers: {
@@ -108,13 +110,13 @@ export default class ForgotPasswordScreen extends React.Component {
         />
         <View style={styles.view}></View>
 
-        <PasswordInput // Utiliser le composant PasswordInput pour le nouveau mot de passe
+        <PasswordInput 
           label="New Password"
           value={this.state.newPassword}
           onChangeText={(text) => this.setState({ newPassword: text })}
         />
 
-        <PasswordInput // Utiliser le composant PasswordInput pour la confirmation du mot de passe
+        <PasswordInput 
           label="Confirm new password"
           value={this.state.confirmPassword}
           onChangeText={(text) => this.setState({ confirmPassword: text })}

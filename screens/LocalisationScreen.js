@@ -20,7 +20,7 @@ import {
   BuildingDetailsScrollView,
   BuildingDetailsText,
 } from "../Components/BuildingText";
-import * as ImagePicker from "expo-image-picker"; // Importez le module pour la sélection d'image
+import * as ImagePicker from "expo-image-picker"; 
 import BuildingTypePicker from "../Components/BuildingTypePicker";
 import local from "../Components/ipconfig";
 
@@ -28,26 +28,25 @@ export default class LocalisationScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      location: null, // Emplacement actuel de l'utilisateur
-      errMessage: null, // Message d'erreur en cas de problème avec la localisation
+      location: null, 
+      errMessage: null, 
       region: {
-        // Région par défaut affichée sur la carte
         latitude: 48.249564,
         longitude: 7.472165,
         latitudeDelta: 1.5,
         longitudeDelta: 1.5,
       },
-      showMenu: false, // Indique si le menu est visible ou non
-      isAddingMarker: false, // Indique si l'utilisateur est en train d'ajouter un marqueur
-      markers: [], // Liste des marqueurs ajoutés par l'utilisateur
-      markerName: "", // Nom du marqueur saisi par l'utilisateur
-      modalVisible: false, // Indique si la boîte de dialogue modale est visible ou non
-      selectedMarker: null, // Marqueur sélectionné par l'utilisateur
-      buildings: [], // Liste des bâtiments récupérés depuis le backend
-      selectedPhoto: null, // Photo sélectionnée pour affichage dans le modal
-      architects: [], // Liste des architectes
-      buildingTypes: [], // Liste des types de bâtiments
-      selectedBuildingType: null, // Type de bâtiment sélectionné
+      showMenu: false,
+      isAddingMarker: false, 
+      markers: [], 
+      markerName: "",
+      modalVisible: false, 
+      selectedMarker: null, 
+      buildings: [], 
+      selectedPhoto: null, 
+      architects: [], 
+      buildingTypes: [],
+      selectedBuildingType: null, 
       isBuildingTypeModalVisible: false,
       isCityModalVisible: false,
       markerCoordinates: null,
@@ -62,12 +61,12 @@ export default class LocalisationScreen extends Component {
       },
     };
     this.onRegionChange = this.onRegionChange.bind(this);
-    this.handleRemoveMarker = this.handleRemoveMarker.bind(this); // Binder la méthode handleRemoveMarker
+    this.handleRemoveMarker = this.handleRemoveMarker.bind(this); 
   }
 
   componentDidMount() {
     this.useEffect();
-    this.fetchBuildings(); // Appeler la méthode fetchBuildings lorsque le composant est monté
+    this.fetchBuildings(); 
     this.fetchBuildingTypes();
     this.fetchCities();
   }
@@ -75,17 +74,16 @@ export default class LocalisationScreen extends Component {
   async useEffect() {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
-      this.setState({ errMessage: "Permission denied" }); // Mettre à jour le message d'erreur si la permission est refusée
+      this.setState({ errMessage: "Permission refusée" }); 
       return;
     }
     let location = await Location.getCurrentPositionAsync({});
-    this.setState({ location: location }); // Mettre à jour l'emplacement actuel de l'utilisateur
+    this.setState({ location: location }); 
   }
 
   onRegionChange() {
     this.setState({
       region: {
-        // Mettre à jour la région de la carte en fonction du mouvement de l'utilisateur
         latitudeDelta: 1.5,
         longitudeDelta: 1.5,
       },
@@ -121,7 +119,7 @@ export default class LocalisationScreen extends Component {
 
   handleAddMarker = () => {
     if (!this.state.isAddingMarker) {
-      this.setState({ isAddingMarker: true }); // Activer le mode d'ajout de marqueur
+      this.setState({ isAddingMarker: true }); 
     }
   };
 
@@ -152,7 +150,7 @@ export default class LocalisationScreen extends Component {
     const newMarkers = [...this.state.markers];
     newMarkers.push({
       coordinate: this.tempMarkerCoordinate,
-      title: this.state.markerName || `Marqueur ${newMarkers.length + 1}`, // Utiliser le nom du marqueur saisi ou un nom par défaut
+      title: this.state.markerName || `Marqueur ${newMarkers.length + 1}`, 
     });
     this.setState({ markers: newMarkers, modalVisible: false, markerName: "" });
   };
@@ -160,12 +158,12 @@ export default class LocalisationScreen extends Component {
   handleMarkerPress = async (marker) => {
     this.setState({ selectedMarker: marker });
     try {
-      const photos = await this.fetchBuildingPhotos(marker.id); // Supposons que marker.id soit l'identifiant du bâtiment
+      const photos = await this.fetchBuildingPhotos(marker.id); 
       this.setState({ buildingPhotos: photos });
-      const architects = await this.fetchArchitects(marker.id); // Supposons que marker.id soit l'identifiant du bâtiment
+      const architects = await this.fetchArchitects(marker.id); 
       this.setState({ buildingArchitect: architects });
     } catch (error) {
-      console.error("Error fetching building photos:", error);
+      console.error("Erreur lors de la récupération des photos du bâtiment:", error);
     }
   };
 
@@ -174,7 +172,7 @@ export default class LocalisationScreen extends Component {
     const filteredMarkers = markers.filter(
       (marker) => marker !== selectedMarker
     );
-    this.setState({ markers: filteredMarkers, selectedMarker: null }); // Supprimer le marqueur sélectionné de la liste
+    this.setState({ markers: filteredMarkers, selectedMarker: null });
   };
 
   handlePhotoPress = (photo) => {
@@ -207,7 +205,7 @@ export default class LocalisationScreen extends Component {
     };
 
     try {
-      const response = await fetch("http://10.31.251.154:8080/buildings", {
+      const response = await fetch(local+"/buildings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -215,15 +213,27 @@ export default class LocalisationScreen extends Component {
         body: JSON.stringify(newBuilding),
       });
       if (response.ok) {
-        // Le bâtiment a été ajouté avec succès
-        this.setState({ modalVisible: false });
+        const newMarker = {
+          coordinate:{
+            latitude: this.tempMarkerCoordinate.latitude,
+            longitude: this.tempMarkerCoordinate.longitude
+          },
+          type: {
+            id: this.state.selectedBuildingType,
+          },
+          name: this.state.name,
+        };
+        this.setState((prevState) => ({
+          markers: [...prevState.markers, newMarker],
+          modalVisible: false, }));
+          this.fetchBuildings();
+          this.handleResetFilters();
       } else {
-        // La requête a échoué
-        console.error("Failed to add building");
-        throw new Error("Failed to add building");
+        console.error("Échec d'ajout du bâtiment");
+        throw new Error("Échec d'ajout du bâtiment");
       }
     } catch (error) {
-      console.error("Error adding building:", error);
+      console.error("Erreur lors de l'ajout du bâtiment:", error);
     }
   };
 
@@ -239,14 +249,13 @@ export default class LocalisationScreen extends Component {
       }
 
       const pickerResult = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images, // Sélectionner uniquement les images
+        mediaTypes: ImagePicker.MediaTypeOptions.Images, 
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
       });
 
       if (!pickerResult.cancelled) {
-        // Envoyer la photo sélectionnée au backend et l'associer au bâtiment approprié
         await this.uploadPhotoToServer(pickerResult.uri);
         alert("Photo ajoutée avec succès !");
       }
@@ -265,7 +274,7 @@ export default class LocalisationScreen extends Component {
       };
 
       const response = await fetch(
-        `http://10.31.251.154:8080/photos/building/${this.state.selectedMarker.id}`,
+        local +`/photos/building/${this.state.selectedMarker.id}`,
         {
           method: "POST",
           headers: {
@@ -277,23 +286,21 @@ export default class LocalisationScreen extends Component {
 
       if (!response.ok) {
         throw new Error(
-          "Failed to upload photo to server and associate it with the building"
+          "Échec de téléchargement de la photo sur le serveur et de son association avec le bâtiment"
         );
       }
     } catch (error) {
-      console.error("Error adding photo to building:", error);
+      console.error("Erreur lors de l'ajout de la photo au bâtiment:", error);
       throw error;
     }
   };
 
-  // Ajoutez cette fonction à votre classe LocalisationScreen
   handleResetFilters = () => {
     this.setState({
       selectedBuildingType: null,
       selectedCity: null,
-      filteredMarkers: [], // Réinitialiser les marqueurs filtrés
+      filteredMarkers: [], 
       region: {
-        // Réinitialiser la région de la carte aux valeurs par défaut
         latitude: 48.249564,
         longitude: 7.472165,
         latitudeDelta: 1.5,
@@ -363,46 +370,46 @@ export default class LocalisationScreen extends Component {
   filterBuildingByType = (building) => {
     const { selectedBuildingType } = this.state;
     if (!selectedBuildingType) {
-      return true; // Si aucun filtre n'est sélectionné, afficher tous les bâtiments
+      return true; 
     }
     return building.type.id === selectedBuildingType.id;
   };
 
   async fetchBuildingTypes() {
     try {
-      const response = await fetch("http://10.31.251.154:8080/types");
+      const response = await fetch(local +"/types");
       if (!response.ok) {
-        throw new Error("Failed to fetch building types");
+        throw new Error("Échec de la récupération des types de bâtiment");
       }
       const buildingTypes = await response.json();
       this.setState({ buildingTypes });
     } catch (error) {
-      console.error("Error fetching building types:", error);
-      alert("An error occurred while retrieving the building types.");
+      console.error("Erreur lors de la récupération des types de bâtiments:", error);
+      alert("Une erreur s'est produite lors de la récupération des types de bâtiments.");
     }
   }
 
   async fetchBuildingsByType(typeId) {
     try {
       const response = await fetch(
-        `http://10.31.251.154:8080/buildings/type/${typeId}`
+        local + `/buildings/type/${typeId}`
       );
       if (!response.ok) {
-        throw new Error("Failed to fetch buildings by type");
+        throw new Error("Échec de la récupération des bâtiments par type");
       }
       const filteredBuildings = await response.json();
       this.setState({ filteredBuildings });
     } catch (error) {
-      console.error("Error fetching buildings by type:", error);
-      alert("An error occurred while retrieving the buildings.");
+      console.error("Erreur lors de la récupération des bâtiments par type:", error);
+      alert("Une erreur s'est produite lors de la récupération des bâtiments.");
     }
   }
 
   async fetchCities() {
     try {
-      const response = await fetch("http://10.31.251.154:8080/cities");
+      const response = await fetch(local+"/cities");
       if (!response.ok) {
-        throw new Error("Failed to fetch cities");
+        throw new Error("Échec de la récupération des villes");
       }
       const cities = await response.json();
       this.setState({ cities });
@@ -414,7 +421,7 @@ export default class LocalisationScreen extends Component {
   async fetchCityCoordinates(cityId) {
     try {
       const response = await fetch(
-        `http://10.31.251.154:8080/cities/${cityId}`
+        local + `/cities/${cityId}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch city coordinates");
@@ -458,21 +465,22 @@ export default class LocalisationScreen extends Component {
 
   async fetchBuildings() {
     try {
-      const response = await fetch("http://10.31.251.154:8080/buildings"); // Récupérer les bâtiments depuis le backend
+      const response = await fetch(local + "/buildings"); 
 
       if (!response.ok) {
-        throw new Error("Failed to fetch buildings");
+        throw new Error("Échec de la récupération des bâtiments");
       }
       const buildings = await response.json();
-      this.setState({ buildings }); // Mettre à jour la liste des bâtiments récupérés
+      this.setState({ buildings }); 
     } catch (error) {
-      console.error("Error fetching buildings:", error); // Gérer les erreurs lors de la récupération des bâtiments
+      console.error("Erreur lors de la récupération des bâtiments:", error); 
     }
   }
+  
   async fetchBuildingPhotos(building_id) {
     try {
       const response = await fetch(
-        `http://10.31.251.154:8080/buildings/${building_id}/photos`
+        local+ `/buildings/${building_id}/photos`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch building photos");
@@ -501,7 +509,7 @@ export default class LocalisationScreen extends Component {
       description: form.newDescription || editingBuilding.description,
     };
 
-    fetch(`http://10.31.251.154:8080/buildings/${editingBuilding.id}`, {
+    fetch(local + `/buildings/${editingBuilding.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -524,7 +532,7 @@ export default class LocalisationScreen extends Component {
   async fetchArchitects(building_id) {
     try {
       const response = await fetch(
-        `http://10.31.251.154:8080/buildings/${building_id}/architects`
+        local + `/buildings/${building_id}/architects`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch architects");
@@ -598,7 +606,7 @@ export default class LocalisationScreen extends Component {
         >
           <View style={styles.modalContainerType}>
             <View style={styles.modalContentType}>
-              {/* Contenu du modal, par exemple une FlatList pour afficher la liste des villes */}
+
               <FlatList
                 data={this.state.cities}
                 keyExtractor={(item) => item.id.toString()}
@@ -680,19 +688,10 @@ export default class LocalisationScreen extends Component {
                     )
                 )}
             </Picker>
+            
 
-            {/*<TextInput*/}
-            {/*  style={styles.input}*/}
-            {/*  placeholder="Type de bâtiment"*/}
-            {/*  value={this.state.type}*/}
-            {/*  onChangeText={(text) => this.setState({ type: text })}*/}
-            {/*/>*/}
-            {/*<TextInput*/}
-            {/*  style={styles.input}*/}
-            {/*  placeholder="Architectes"*/}
-            {/*  value={this.state.architects}*/}
-            {/*  onChangeText={(text) => this.setState({ architects: text })}*/}
-            {/*/>*/}
+
+          
             <Button title="Ajouter" onPress={this.handleSubmit} />
           </View>
         </Modal>
@@ -1037,6 +1036,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   closeButtonText: {
+    marginTop : 50,
     color: "#000",
     fontWeight: "bold",
   },

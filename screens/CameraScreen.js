@@ -51,7 +51,7 @@ export default class CameraScreen extends React.Component {
     if (hasCameraPermission === null) {
       return <View />;
     } else if (hasCameraPermission === false) {
-      return <Text>No access to camera</Text>;
+      return <Text>Accès à la caméra non disponible</Text>;
     } else {
       return (
         <View style={styles.container}>

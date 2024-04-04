@@ -1,4 +1,4 @@
-+-Ajouter/éditer des bâtiments
+++-Ajouter/éditer des bâtiments
 ++-filtrer les bâtiments (ville, type)
 ++-Mettre en place les favoris
 -Ajouter un parcours par rapport à la liste de favoris

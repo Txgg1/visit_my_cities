@@ -5,6 +5,8 @@ import { connect } from "react-redux";
 import InputText from "../Components/InputText";
 import ButtonCustom from "../Components/ButtonCustom";
 import PasswordInput from "../Components/PasswordInput";
+import local from "../Components/ipconfig";
+
 
 
 class RegisterScreen extends React.Component {
@@ -46,14 +48,14 @@ class RegisterScreen extends React.Component {
     }
 
     try {
-      const response = await fetch("http://10.31.251.154:8080/users", {
+      const response = await fetch(local + "/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: name,
-          firstname: "", // Si votre backend nécessite un prénom, ajoutez-le ici
+          firstname: "", 
           mail: email,
           password: password,
         }),

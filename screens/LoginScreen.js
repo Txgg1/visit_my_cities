@@ -4,7 +4,8 @@ import Header from "../Components/Header";
 import InputText from "../Components/InputText";
 import { connect } from "react-redux";
 import ButtonCustom from "../Components/ButtonCustom";
-import PasswordInput from "../Components/PasswordInput"; // Importer le composant PasswordInput
+import PasswordInput from "../Components/PasswordInput"; 
+import local from "../Components/ipconfig";
 
 class LoginScreen extends React.Component {
   constructor(props) {
@@ -15,7 +16,6 @@ class LoginScreen extends React.Component {
     };
   }
 
-  // Fonction d'alerte utilisée pour afficher des messages d'erreur
   alerte() {
     Alert.alert(
       "Erreur",
@@ -25,43 +25,34 @@ class LoginScreen extends React.Component {
     );
   }
 
-  // Fonction appelée lorsque le bouton de connexion est pressé
   onLoginPressed() {
     const { email, password } = this.state;
 
-    // Vérification que les champs e-mail et mot de passe sont remplis
     if (!email || !password) {
       this.alerte();
       return;
     }
 
-    // Requête GET pour récupérer les utilisateurs depuis l'API
-    fetch("http://10.31.251.154:8080/users")
+    fetch(local + "/users")
       .then((response) => {
-        // Vérification de la réponse du serveur
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        // Conversion de la réponse en JSON
         return response.json();
       })
       .then((data) => {
-        // Vérification de l'utilisateur dans les données récupérées
         const foundUser = data.find(
           (user) => user.mail === email && user.password === password
         );
         if (foundUser) {
           const action = { type: "SET_USER", value: foundUser };
           this.props.dispatch(action);
-          // Redirection vers le tableau de bord avec le nom de l'utilisateur trouvé
           this.props.navigation.navigate("Dashboard", { isLoggedIn: true });
         } else {
-          // Affichage d'un message d'erreur si l'utilisateur n'est pas trouvé
           Alert.alert("Erreur", "L'e-mail ou le mot de passe est incorrect");
         }
       })
       .catch((error) => {
-        // Gestion des erreurs lors de la récupération des utilisateurs
         console.error(
           "Erreur lors de la récupération des utilisateurs:",
           error
@@ -77,7 +68,6 @@ class LoginScreen extends React.Component {
       <View>
         <Header title="Connexion" />
 
-        {/* Champ de saisie pour l'e-mail */}
         <InputText
           placeholder="E-mail"
           value={this.state.email}
@@ -88,7 +78,6 @@ class LoginScreen extends React.Component {
         />
         <View style={styles.view}></View>
 
-        {/* Champ de saisie pour le mot de passe */}
         <PasswordInput
           placeholder="Mot de passe"
           label="Password"
@@ -99,20 +88,17 @@ class LoginScreen extends React.Component {
         />
         <View style={styles.view}></View>
 
-        {/* Bouton de connexion */}
         <ButtonCustom
           onPress={() => this.onLoginPressed()}
           style={styles.button}
           title="Connexion"
         />
         <View style={styles.row}>
-          {/* Bouton pour aller à la page d'inscription */}
           <TouchableOpacity onPress={() => navigate("Registerscreen")}>
             <Text style={styles.link}>S'inscrire</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.row}>
-          {/* Bouton pour réinitialiser le mot de passe */}
           <TouchableOpacity onPress={() => navigate("ForgotPasswordscreen")}>
             <Text style={styles.link}>Mot de passe oublié</Text>
           </TouchableOpacity>

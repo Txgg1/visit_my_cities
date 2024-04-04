@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { connect } from "react-redux";
+import local from "../Components/ipconfig";
+
 
 class ProfileScreen extends Component {
   constructor(props) {
@@ -30,8 +32,7 @@ class ProfileScreen extends Component {
   }
 
   handleSaveChanges = () => {
-    // Envoyer les modifications au backend
-    // Mettre à jour l'état de l'utilisateur avec les nouvelles informations
+   
     const { newName, newFirstname, newEmail, newPassword, user } = this.state;
     const updatedUser = {
       id: user.id,
@@ -41,7 +42,7 @@ class ProfileScreen extends Component {
       password: newPassword || user.password,
     };
 
-    fetch(`http://10.31.251.154:8080/users/${user.id}`, {
+    fetch(local+`/users/${user.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -50,7 +51,6 @@ class ProfileScreen extends Component {
     })
     .then(response => response.json())
     .then(data => {
-      // If the request was successful, update the user state
       this.setState({
         user: updatedUser,
         modalVisible: false,
@@ -71,7 +71,7 @@ class ProfileScreen extends Component {
         <Text style={styles.text}>{user.firstname}</Text>
         <Text style={styles.label}>Email :</Text>
         <Text style={styles.text}>{user.email}</Text>
-        {/* Ajoutez d'autres champs d'informations de l'utilisateur ici */}
+      
         <TouchableOpacity
           style={styles.button}
           onPress={() => this.setState({ modalVisible: true })}
