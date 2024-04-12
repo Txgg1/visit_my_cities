@@ -446,7 +446,7 @@ export default class LocalisationScreen extends Component {
           longitudeDelta: 0.1,
         },
       });
-      this.toggleCityModal(); // Ajoutez cette ligne pour fermer le modal
+      this.toggleCityModal();
     } catch (error) {
       console.error("Error handling city selection:", error);
     }
@@ -567,9 +567,6 @@ export default class LocalisationScreen extends Component {
     return (
       <View style={styles.container}>
         <View>
-          {/* Autres éléments existants */}
-
-          {/* Autres éléments existants */}
         </View>
         <Modal
           animationType="slide"
@@ -619,13 +616,12 @@ export default class LocalisationScreen extends Component {
                 )}
               />
               {/* {console.log(this.state.cities)} */}
-              {/* Bouton pour fermer le modal */}
+
               <Button title="Fermer" onPress={this.toggleCityModal} />
             </View>
           </View>
         </Modal>
 
-        {/* Boîte de dialogue modale pour ajouter un marqueur */}
         <Modal
           animationType="slide"
           transparent={true}
